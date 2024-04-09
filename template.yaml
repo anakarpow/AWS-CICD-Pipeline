@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM Application for DPP cost reporting
+Globals:
+  Function:
+    Timeout: 300
+
+Parameters:
+  Env:
+    Description: Environment type.
+    Type: String
+    AllowedValues: [prod, dev, int]
+    ConstraintDescription: must specify prod, dev, or int.
+
+
+Resources:
+  CASTInputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub delete-cast-input-${Env}-delete

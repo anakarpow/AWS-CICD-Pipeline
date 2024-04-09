@@ -1,0 +1,12 @@
+version=0.1
+
+[dev.global.parameters]
+[default.deploy.parameters]
+
+[default.build.parameters]
+stack_name = 'CAST-test-repo'
+s3_bucket = 'cost-reporting-vw'
+region = 'eu-west-1'
+capabilities = 'CAPABILITY_NAMED_IAM'
+tags=" GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
+parameter_overrides=[]
