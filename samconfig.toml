@@ -1,8 +1,7 @@
 version=0.1
 
-[dev.global.parameters]
+[default.global.parameters]
 [default.deploy.parameters]
-
 [default.build.parameters]
 stack_name = 'CAST-test-repo'
 s3_bucket = 'cost-reporting-vw'

@@ -10,4 +10,4 @@ phases:
       - echo "building environemnt"
   post_build:
     commands:
-      - sam deploy --config-env prod --no-fail-on-empty-changeset
+      - sam deploy --config-env default --no-fail-on-empty-changeset
