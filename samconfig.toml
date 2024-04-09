@@ -1,8 +1,14 @@
 version=0.1
 
 [default.global.parameters]
-[default.deploy.parameters]
+stack_name = 'CAST-test-repo'
+s3_bucket = 'cost-reporting-vw'
+region = 'eu-west-1'
 [default.build.parameters]
+stack_name = 'CAST-test-repo'
+s3_bucket = 'cost-reporting-vw'
+region = 'eu-west-1'
+[default.deploy.parameters]
 stack_name = 'CAST-test-repo'
 s3_bucket = 'cost-reporting-vw'
 region = 'eu-west-1'
