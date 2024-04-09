@@ -1,16 +1,10 @@
 version=0.1
 
 [default.global.parameters]
-stack_name = 'CAST-test-repo'
-s3_bucket = 'cost-reporting-vw'
-region = 'eu-west-1'
 [default.build.parameters]
-stack_name = 'CAST-test-repo'
-s3_bucket = 'cost-reporting-vw'
-region = 'eu-west-1'
 [default.deploy.parameters]
 stack_name = 'CAST-test-repo'
-s3_bucket = 'cost-reporting-vw'
+s3_bucket = 'test-autom-dev'
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags=" GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
