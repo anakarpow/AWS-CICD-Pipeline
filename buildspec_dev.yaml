@@ -8,6 +8,8 @@ phases:
       - sam build --template template.yaml
       - echo "installing own CAST package"
       - echo "building environemnt"
+      - pip install bandit
+      - bandit test_code.py
   post_build:
     commands:
       - ROLE_ARN=arn:aws:iam::471685057907:role/cdk-cast-file-publishing-role-471685057907-eu-west-1
