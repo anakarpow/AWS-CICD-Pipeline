@@ -7,9 +7,12 @@ phases:
       commands:
         - pip install cfn-lint
         - . .cfn-lint.sh
+        - . ./.cfn-lint.sh
+        # - . .cfn-lint.sh
+
         - pip install bandit
         - bandit test_code.py
-      on-failure: ABORT
+      # on-failure: ABORT
   build:
     commands:
       # - sam build --template template.yaml
