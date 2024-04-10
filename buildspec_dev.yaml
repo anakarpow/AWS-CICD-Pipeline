@@ -6,7 +6,7 @@ phases:
   pre_build:
       commands:
         - pip install cfn-lint
-        - cfn-lint template.yaml
+        - source .cfn-lint.sh
         - pip install bandit
         - bandit test_code.py
       on-failure: ABORT
