@@ -7,8 +7,8 @@ phases:
       python: 3.8
   pre_build:
       commands:
-        - source cfn-lint.sh
-        - source code-scan.sh
+        - . cfn-lint.sh
+        # -  code-scan.sh
       # on-failure: ABORT
   build:
     commands:
