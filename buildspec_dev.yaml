@@ -5,8 +5,8 @@ phases:
       python: 3.8
   pre_build:
       commands:
-        - pip install cfn-lint
-        - . .cfn-lint.sh
+        # - pip install cfn-lint
+        # - . .cfn-lint.sh
         - . ./.cfn-lint.sh
         # - . .cfn-lint.sh
 
