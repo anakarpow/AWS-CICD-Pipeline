@@ -12,15 +12,12 @@ phases:
       # on-failure: ABORT
   build:
     commands:
-      # - sam build --template template.yaml
-      - echo "installing own CAST package"
-      - echo "building environemnt"
+      - sam build --template template.yaml
 
   post_build:
     commands:
       - ROLE_ARN=arn:aws:iam::471685057907:role/cdk-cast-file-publishing-role-471685057907-eu-west-1
       - OUTPUT_PROFILE=DEV
-
       - echo "Assuming role $ROLE_ARN"
       - sts=$(aws sts assume-role --role-arn "$ROLE_ARN" --role-session-name "$OUTPUT_PROFILE" --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text)
       - echo "Converting sts to array"
