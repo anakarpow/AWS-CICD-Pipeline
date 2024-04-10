@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+  build:
+    commands:
+      - sam build --template template.yaml
+      - echo "installing own CAST package"
+      - echo "building environemnt"
+  post_build:
+    commands:
+      - sam deploy --config-env dev --no-fail-on-empty-changeset
