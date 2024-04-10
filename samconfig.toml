@@ -7,4 +7,6 @@ stack_name = 'CAST-test-repo'
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags=" GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
-parameter_overrides=[]
+parameter_overrides=[
+    'Env=dev'
+]
