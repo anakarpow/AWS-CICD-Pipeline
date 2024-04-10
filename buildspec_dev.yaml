@@ -5,9 +5,8 @@ phases:
       python: 3.8
   build:
     commands:
-     - brew install ruby brew-gem
-     - brew gem install cfn-nag
-     - cfn_nag_scan --input path template.yaml
+        - pip install cfn-lint
+        - cfn-lint template.yaml
       # - sam build --template template.yaml
       # - echo "installing own CAST package"
       # - echo "building environemnt"

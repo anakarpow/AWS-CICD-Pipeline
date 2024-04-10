@@ -20,3 +20,15 @@ Resources:
     Properties:
       AccessControl: Private
       BucketName: !Sub delete-cast-input-${Env}-delete
+
+  CostReportingFunction:
+    Type: AWS::Serverless::Function
+    DependsOn: LambdaVPCAccess
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: test for CICD
+      CodeUri: test_code.py
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Timeout: 320
+      MemorySize: 2000
