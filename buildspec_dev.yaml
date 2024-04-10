@@ -8,8 +8,7 @@ phases:
   pre_build:
       commands:
         - source cfn-lint.sh
-        - pip install bandit
-        - bandit test_code.py
+        - source code_scan.sh
       # on-failure: ABORT
   build:
     commands:

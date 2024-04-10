@@ -23,7 +23,6 @@ Resources:
 
   CostReportingFunction:
     Type: AWS::Serverless::Function
-    DependsOn: LambdaVPCAccess
     UpdateReplacePolicy: Retain
     Properties:
       Description: test for CICD
