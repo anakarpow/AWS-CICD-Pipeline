@@ -1,6 +1,8 @@
 #!/bin/bash
 # set -uxo pipefail
 set -e
+
+pip install cfn-lint
 cfn-lint template.yaml; exit_status=$?
 
 ERROR_MASK=2
