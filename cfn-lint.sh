@@ -1,9 +1,9 @@
 #!/bin/bash
-# set -uxo pipefail
 set -e
 
 pip install cfn-lint
 cfn-lint template.yaml --ignore-checks W; exit_status=$?
+
 echo $exit_status
 
 ERROR_MASK=2

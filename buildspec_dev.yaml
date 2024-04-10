@@ -8,7 +8,7 @@ phases:
   pre_build:
       commands:
         - source cfn-lint.sh
-        - source code_scan.sh
+        - source code-scan.sh
       # on-failure: ABORT
   build:
     commands:
