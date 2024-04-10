@@ -3,13 +3,17 @@ phases:
   install:
     runtime-versions:
       python: 3.8
-  build:
-    commands:
+  pre-build:
+      commands:
         - pip install cfn-lint
         - cfn-lint template.yaml
+      on-failure:
+        - ABORT
+  build:
+    commands:
       # - sam build --template template.yaml
-      # - echo "installing own CAST package"
-      # - echo "building environemnt"
+      - echo "installing own CAST package"
+      - echo "building environemnt"
       # - pip install bandit
       # - bandit test_code.py
   post_build:
