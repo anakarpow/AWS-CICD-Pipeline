@@ -1,6 +1,10 @@
 #!/bin/bash
 
+brew install ruby brew-gem
+brew gem install cfn-nag
 
-pip install bandit
+cfn_nag_scan --input path template.yaml
 
-bandit test_code.py
+# pip install bandit
+
+# bandit test_code.py

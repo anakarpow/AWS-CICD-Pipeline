@@ -5,11 +5,14 @@ phases:
       python: 3.8
   build:
     commands:
-      - sam build --template template.yaml
-      - echo "installing own CAST package"
-      - echo "building environemnt"
-      - pip install bandit
-      - bandit test_code.py
+     - brew install ruby brew-gem
+     - brew gem install cfn-nag
+     - cfn_nag_scan --input path template.yaml
+      # - sam build --template template.yaml
+      # - echo "installing own CAST package"
+      # - echo "building environemnt"
+      # - pip install bandit
+      # - bandit test_code.py
   post_build:
     commands:
       - ROLE_ARN=arn:aws:iam::471685057907:role/cdk-cast-file-publishing-role-471685057907-eu-west-1
