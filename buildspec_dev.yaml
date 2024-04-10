@@ -7,9 +7,7 @@ phases:
       python: 3.8
   pre_build:
       commands:
-        - source .cfn-lint.sh
-        # - . .cfn-lint.sh
-
+        - source cfn-lint.sh
         - pip install bandit
         - bandit test_code.py
       # on-failure: ABORT
