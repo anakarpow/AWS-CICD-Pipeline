@@ -13,7 +13,6 @@ Parameters:
     AllowedValues: [prod, dev, int]
     ConstraintDescription: must specify prod, dev, or int.
 
-
 Resources:
   CASTInputBucket:
     Type: AWS::S3::Bucket
