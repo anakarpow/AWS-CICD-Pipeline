@@ -1,4 +1,6 @@
 version: 0.2
+env:
+ shell: bash
 phases:
   install:
     runtime-versions:
@@ -7,7 +9,7 @@ phases:
       commands:
         # - pip install cfn-lint
         # - . .cfn-lint.sh
-        - . ./.cfn-lint.sh
+        - source .cfn-lint.sh
         # - . .cfn-lint.sh
 
         - pip install bandit

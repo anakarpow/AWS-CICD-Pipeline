@@ -1,6 +1,6 @@
 #!/bin/bash
 # set -uxo pipefail
-
+set -e
 cfn-lint template.yaml; exit_status=$?
 
 ERROR_MASK=2
