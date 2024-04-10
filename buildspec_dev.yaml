@@ -7,8 +7,7 @@ phases:
       commands:
         - pip install cfn-lint
         - cfn-lint template.yaml
-      on-failure:
-        - ABORT
+      on-failure: ABORT
   build:
     commands:
       # - sam build --template template.yaml
