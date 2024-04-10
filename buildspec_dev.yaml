@@ -10,7 +10,8 @@ phases:
       - echo "building environemnt"
   post_build:
     commands:
-      - aws sts assume-role --role-arn arn:aws:iam::471685057907:role/cdk-cast-file-publishing-role-471685057907-eu-west-1 --role-session-name testx > cred.json       
+      - aws sts assume-role --role-arn arn:aws:iam::471685057907:role/cdk-cast-file-publishing-role-471685057907-eu-west-1 --role-session-name testx > cred.json   
+      - < cred.json   
       - s=$(jq .Credentials.AccessKeyId cred.json)       
       - y=$(jq .Credentials.SecretAccessKey cred.json)       
       - z=$(jq .Credentials.SessionToken cred.json)       
