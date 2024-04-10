@@ -12,7 +12,7 @@ then
   echo "Errors!" >&2
   # Fail on errors
   exit 1
-# elif [ $(( exit_status & WARNING_MASK )) -gt 0 ]
+elif [ $(( exit_status & WARNING_MASK )) -gt 0 ]
 then
   echo "Warnings!" >&2
   # Don't fail on warnings
