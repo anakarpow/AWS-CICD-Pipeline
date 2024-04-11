@@ -6,12 +6,10 @@ Globals:
     Timeout: 300
 
 Parameters:
-
   Prefix:
     Description: project prefix
     Type: String
     Default: CAST-
-
 
 Resources:
   PipelineRole:
@@ -33,29 +31,11 @@ Resources:
               - codestar-connections:UseConnection
             Resource: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
             Effect: Allow
-
-            # why all these services ?
-          # - Action:
-          #     - elasticbeanstalk:*
-          #     - ec2:*
-          #     - elasticloadbalancing:*
-          #     - autoscaling:*
-          #     - cloudwatch:*
-          #     - s3:*
-          #     - sns:*
-          #     - cloudformation:*
-          #     - rds:*
-          #     - sqs:*
-          #     - ecs:*
-          #   Resource: "*"
-          #   Effect: Allow
-
-          # # restrict here 
-          # - Action:
-          #     - lambda:InvokeFunction
-          #     - lambda:ListFunctions
-          #   Resource: "*"
-          #   Effect: Allow
+            
+          - Action:
+              - s3:*
+            Resource: codepipeline-eu-west-1-922520304512
+            Effect: Allow
 
           - Action:
               - cloudformation:CreateStack
@@ -76,7 +56,7 @@ Resources:
               - codebuild:StartBuild
               - codebuild:BatchGetBuildBatches
               - codebuild:StartBuildBatch
-            Resource: 
+            Resource:
               - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-dev
               - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev
               - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-prod
@@ -87,7 +67,6 @@ Resources:
             Action:
               - cloudformation:ValidateTemplate
             Resource: "*"
-
 
   # remove managed policies
   CodeBuildRole:

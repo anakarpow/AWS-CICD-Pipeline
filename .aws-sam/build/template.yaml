@@ -29,6 +29,10 @@ Resources:
           Resource: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
           Effect: Allow
         - Action:
+          - s3:*
+          Resource: '*'
+          Effect: Allow
+        - Action:
           - cloudformation:CreateStack
           - cloudformation:DeleteStack
           - cloudformation:DescribeStacks
