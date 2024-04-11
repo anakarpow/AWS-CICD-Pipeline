@@ -4,6 +4,15 @@ Description: "cross account Pipeline for CAST"
 Globals:
   Function:
     Timeout: 300
+
+Parameters:
+
+  Prefix:
+    Description: project prefix
+    Type: String
+    Default: CAST-
+
+
 Resources:
   PipelineRole:
     Type: "AWS::IAM::Role"
@@ -107,7 +116,7 @@ Resources:
               - cloudformation:ExecuteChangeSet
               - cloudformation:SetStackPolicy
               - cloudformation:ValidateTemplate
-            Resource: "*"
+            Resource: !Sub arn:aws:cloudformation:eu-west-1:214364534595:stack/${Prefix}*
             Effect: Allow
 
           # restrict here 
