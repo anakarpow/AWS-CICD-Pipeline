@@ -62,9 +62,8 @@ Resources:
           - s3:PutObject*
           - s3:Abort*
           Resource:
-          - Fn::GetAtt:
-            - ArtifactBucket
-            - Arn
+          - Fn::Sub: arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}
+          - Fn::Sub: arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}/*
           Effect: Allow
         - Action:
           - kms:Decrypt
