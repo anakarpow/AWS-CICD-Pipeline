@@ -84,7 +84,7 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-        # alows ro write logs 
+        # allows to write logs 
           - Effect: Allow
             Resource:
               - arn:aws:logs:eu-west-1:214364534595:log-group:*
@@ -248,7 +248,7 @@ Resources:
                 Provider: "CodeStarSourceConnection"
                 Version: "1"
               Configuration:
-                BranchName: "dev" # later test for differen tbranches
+                BranchName: "main" # later test for different branches
                 ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
                 DetectChanges: "true"
                 FullRepositoryId: "dpp-clearingoffice/pipeline_test_repo"
