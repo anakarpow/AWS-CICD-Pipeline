@@ -20,6 +20,7 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
+            #check this out, what for ? can be furhter restricted
           - Action:
               - iam:PassRole
             Resource: "*"
@@ -31,6 +32,7 @@ Resources:
                   - elasticbeanstalk.amazonaws.com
                   - ec2.amazonaws.com
                   - ecs-tasks.amazonaws.com
+            # codecommit is actually used ?
           - Action:
               - codecommit:CancelUploadArchive
               - codecommit:GetBranch
@@ -40,6 +42,7 @@ Resources:
               - codecommit:UploadArchive
             Resource: "*"
             Effect: Allow
+            # codedeploy is actually used ?
           - Action:
               - codedeploy:CreateDeployment
               - codedeploy:GetApplication
@@ -49,10 +52,12 @@ Resources:
               - codedeploy:RegisterApplicationRevision
             Resource: "*"
             Effect: Allow
+            # restrict to resouce should work
           - Action:
               - codestar-connections:UseConnection
             Resource: "*"
             Effect: Allow
+            # why all these services ?
           - Action:
               - elasticbeanstalk:*
               - ec2:*
@@ -67,11 +72,15 @@ Resources:
               - ecs:*
             Resource: "*"
             Effect: Allow
+
+          # restrict here 
           - Action:
               - lambda:InvokeFunction
               - lambda:ListFunctions
             Resource: "*"
             Effect: Allow
+
+          # opswork?
           - Action:
               - opsworks:CreateDeployment
               - opsworks:DescribeApps
@@ -83,6 +92,9 @@ Resources:
               - opsworks:UpdateStack
             Resource: "*"
             Effect: Allow
+
+          # restrict here 
+
           - Action:
               - cloudformation:CreateStack
               - cloudformation:DeleteStack
@@ -96,6 +108,8 @@ Resources:
               - cloudformation:ValidateTemplate
             Resource: "*"
             Effect: Allow
+
+          # restrict here 
           - Action:
               - codebuild:BatchGetBuilds
               - codebuild:StartBuild
@@ -103,8 +117,9 @@ Resources:
               - codebuild:StartBuildBatch
             Resource: "*"
             Effect: Allow
-          - Effect: Allow
-            Action:
+
+          # devicefarm?
+          - Action:
               - devicefarm:ListProjects
               - devicefarm:ListDevicePools
               - devicefarm:GetRun
@@ -112,6 +127,9 @@ Resources:
               - devicefarm:CreateUpload
               - devicefarm:ScheduleRun
             Resource: "*"
+            Effect: Allow
+
+          # restrict here 
           - Effect: Allow
             Action:
               - servicecatalog:ListProvisioningArtifacts
@@ -120,20 +138,24 @@ Resources:
               - servicecatalog:DeleteProvisioningArtifact
               - servicecatalog:UpdateProduct
             Resource: "*"
+
           - Effect: Allow
             Action:
               - cloudformation:ValidateTemplate
             Resource: "*"
+
           - Effect: Allow
             Action:
               - ecr:DescribeImages
             Resource: "*"
+
           - Effect: Allow
             Action:
               - states:DescribeExecution
               - states:DescribeStateMachine
               - states:StartExecution
             Resource: "*"
+
           - Effect: Allow
             Action:
               - appconfig:StartDeployment
@@ -141,6 +163,7 @@ Resources:
               - appconfig:GetDeployment
             Resource: "*"
 
+  # remove managed policies
   CodeBuildRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -168,6 +191,7 @@ Resources:
               - logs:CreateLogGroup
               - logs:CreateLogStream
               - logs:PutLogEvents
+
           - Effect: Allow
             Resource:
               - arn:aws:s3:::codepipeline-eu-west-1-*
@@ -177,10 +201,12 @@ Resources:
               - s3:GetObjectVersion
               - s3:GetBucketAcl
               - s3:GetBucketLocation
+
           - Action: sts:AssumeRole
             Resource:
               - arn:aws:iam::471685057907:role/cdk-cast-file-publishing-role-471685057907-eu-west-1
             Effect: Allow
+
           - Effect: Allow
             Action:
               - codebuild:CreateReportGroup
@@ -204,7 +230,7 @@ Resources:
         Name: "dpp-dco-cast-to-dev-auto"
         Packaging: "NONE"
         Type: "CODEPIPELINE"
-      Cache:
+      Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
         Type: "NO_CACHE"
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
