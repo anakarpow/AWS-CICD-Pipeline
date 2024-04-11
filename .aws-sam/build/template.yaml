@@ -66,10 +66,6 @@ Resources:
     Properties:
       RoleName: codebuild-service-role-auto
       AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codebuild.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
-      ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/CloudWatchFullAccess
-      - arn:aws:iam::aws:policy/AmazonS3FullAccess
-      - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
   CodeBuildTempPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -79,6 +75,13 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
+        - Effect: Allow
+          Resource:
+          - arn:aws:logs:eu-west-1:214364534595:log-group:*
+          Action:
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
         - Effect: Allow
           Resource:
           - arn:aws:s3:::codepipeline-eu-west-1-*
