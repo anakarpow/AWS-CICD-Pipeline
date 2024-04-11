@@ -205,7 +205,7 @@ Resources:
           - Action: sts:AssumeRole
             Resource:
               - arn:aws:iam::471685057907:role/CAST-DeployerRole-dev
-              - arn:aws:iam::936022423514:role/CAST-DeployerRole-dev
+              - arn:aws:iam::936022423514:role/CAST-DeployerRole-prod
             Effect: Allow
 
           - Effect: Allow

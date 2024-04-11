@@ -18,4 +18,4 @@ phases:
     commands:
       - source variables.sh
       - source assume_role_prod.sh
-      - sam deploy --config-env resources-prod--profile PROD --no-fail-on-empty-changeset
+      - sam deploy --config-env resources-prod --profile PROD --no-fail-on-empty-changeset
