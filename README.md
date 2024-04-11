@@ -1,1 +1,10 @@
-basic pipe with bandit and cfn-lint
+# basic pipeline with bandit and cfn-lint
+
+- uses cfn-lint and bandit, other tool requirements?
+- deploys pipe in RES and necessary roles in other environments
+  
+TODO
+- IAM roles optimiziation
+- optimize shell scripts , variable management etc
+- finish up CF templates
+- ...

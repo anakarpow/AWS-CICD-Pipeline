@@ -1,10 +1,8 @@
 #!/bin/bash
-set -e
+set -x
 
 pip install cfn-lint
-cfn-lint template.yaml --ignore-checks W; exit_status=$?
-
-echo $exit_status
+cfn-lint template.yaml; exit_status=$?
 
 ERROR_MASK=2
 WARNING_MASK=4
