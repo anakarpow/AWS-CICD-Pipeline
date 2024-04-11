@@ -30,7 +30,7 @@ Resources:
           Effect: Allow
         - Action:
           - s3:*
-          Resource: '*'
+          Resource: arn:aws:s3:::codepipeline-eu-west-1-*
           Effect: Allow
         - Action:
           - cloudformation:CreateStack
@@ -81,14 +81,6 @@ Resources:
         Statement:
         - Effect: Allow
           Resource:
-          - arn:aws:logs:eu-west-1:214364534595:log-group:/aws/codebuild/dpp-dco-cast
-          - arn:aws:logs:eu-west-1:214364534595:log-group:/aws/codebuild/dpp-dco-cast:*
-          Action:
-          - logs:CreateLogGroup
-          - logs:CreateLogStream
-          - logs:PutLogEvents
-        - Effect: Allow
-          Resource:
           - arn:aws:s3:::codepipeline-eu-west-1-*
           Action:
           - s3:PutObject
@@ -101,15 +93,6 @@ Resources:
           - arn:aws:iam::471685057907:role/CAST-DeployerRole-dev
           - arn:aws:iam::936022423514:role/CAST-DeployerRole-prod
           Effect: Allow
-        - Effect: Allow
-          Action:
-          - codebuild:CreateReportGroup
-          - codebuild:CreateReport
-          - codebuild:UpdateReport
-          - codebuild:BatchPutTestCases
-          - codebuild:BatchPutCodeCoverages
-          Resource:
-          - arn:aws:codebuild:eu-west-1:214364534595:report-group/dpp-dco-cast-*
   CodeBuildDEV:
     Type: AWS::CodeBuild::Project
     Properties:
