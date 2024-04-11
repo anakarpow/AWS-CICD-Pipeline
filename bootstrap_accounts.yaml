@@ -62,7 +62,8 @@ Resources:
               - s3:PutObject*
               - s3:Abort*
             Resource:
-              - !GetAtt ArtifactBucket.Arn
+              - !Sub arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}
+              - !Sub arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}/*
             Effect: Allow
 
           - Action:
@@ -71,7 +72,7 @@ Resources:
               - kms:Encrypt
               - kms:ReEncrypt*
               - kms:GenerateDataKey*
-            Resource: 
+            Resource:
               - arn:aws:kms:eu-west-1:471685057907:key/AWS_MANAGED_KEY
               - arn:aws:kms:eu-west-1:936022423514:key/AWS_MANAGED_KEY
             Effect: Allow
@@ -94,7 +95,7 @@ Resources:
               - !Sub arn:aws:s3:::${PrefixLowercase}output-${Env}
               - !Sub arn:aws:s3:::${PrefixLowercase}test-${Env}
             Effect: Allow
-            
+
           - Action:
               - iam:*
             Resource:
