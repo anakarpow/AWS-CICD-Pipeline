@@ -12,9 +12,14 @@ Parameters:
     AllowedValues: [prod, dev, int]
     ConstraintDescription: must specify prod, dev, or int.
 
+  PrefixLowercase:
+    Description: project prefix
+    Type: String
+    Default: cast-
+
 Resources:
   CASTInputBucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private
-      BucketName: !Sub delete-cast-input-${Env}-delete
+      BucketName: !Sub ${PrefixLowercase}-input-${Env}

@@ -40,7 +40,7 @@ Resources:
           - Effect: Allow
             Principal:
               AWS:
-                - arn:aws:iam::214364534595:root
+                - arn:aws:iam::214364534595:role/codebuild-service-role-auto
             Action:
               - sts:AssumeRole
 
@@ -71,7 +71,9 @@ Resources:
               - kms:Encrypt
               - kms:ReEncrypt*
               - kms:GenerateDataKey*
-            Resource: arn:aws:kms:eu-west-1:936022423514:key/AWS_MANAGED_KEY
+            Resource: 
+              - arn:aws:kms:eu-west-1:471685057907:key/AWS_MANAGED_KEY
+              - arn:aws:kms:eu-west-1:936022423514:key/AWS_MANAGED_KEY
             Effect: Allow
 
   # probably need to be udated according to depoyed resources
@@ -88,8 +90,11 @@ Resources:
           - Action:
               - s3:*
             Resource:
-              - "*"
+              - !Sub ${PrefixLowercase}-input-${Env}
+              - !Sub ${PrefixLowercase}-outptu-${Env}
+              - !Sub ${PrefixLowercase}-test-${Env}
             Effect: Allow
+            
           - Action:
               - iam:*
             Resource:
