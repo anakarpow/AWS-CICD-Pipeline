@@ -1,8 +1,6 @@
 #!/bin/bash
 set -x
 
-# TODO pass variables to here 
-# ROLE_ARN=arn:aws:iam::471685057907:role/CAST-DeployerRole-dev
 ROLE_ARN=$DEPLOYER_ROLE_ARN_DEV
 OUTPUT_PROFILE=DEV
 

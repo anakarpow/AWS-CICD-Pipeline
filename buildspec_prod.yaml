@@ -17,5 +17,5 @@ phases:
   post_build:
     commands:
       - source variables.sh
-      - source assume_role_dev.sh
-      - sam deploy --config-env resources-dev --profile DEV --no-fail-on-empty-changeset
+      - source assume_role_prod.sh
+      - sam deploy --config-env resources-prod--profile PROD --no-fail-on-empty-changeset
