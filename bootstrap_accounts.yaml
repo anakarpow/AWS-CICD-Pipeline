@@ -90,9 +90,9 @@ Resources:
           - Action:
               - s3:*
             Resource:
-              - !Sub ${PrefixLowercase}-input-${Env}
-              - !Sub ${PrefixLowercase}-outptu-${Env}
-              - !Sub ${PrefixLowercase}-test-${Env}
+              - !Sub arn:aws:s3:::${PrefixLowercase}input-${Env}
+              - !Sub arn:aws:s3:::${PrefixLowercase}output-${Env}
+              - !Sub arn:aws:s3:::${PrefixLowercase}test-${Env}
             Effect: Allow
             
           - Action:
