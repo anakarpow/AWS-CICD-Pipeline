@@ -29,81 +29,33 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-            #check this out, what for ? can be furhter restricted
-          # - Action:
-          #     - iam:PassRole
-          #   Resource: "*"
-          #   Effect: Allow
-          #   Condition:
-          #     StringEqualsIfExists:
-          #       iam:PassedToService:
-          #         - cloudformation.amazonaws.com
-          #         - elasticbeanstalk.amazonaws.com
-          #         - ec2.amazonaws.com
-          #         - ecs-tasks.amazonaws.com
-
-            # codecommit is actually used ?
-          # - Action:
-          #     - codecommit:CancelUploadArchive
-          #     - codecommit:GetBranch
-          #     - codecommit:GetCommit
-          #     - codecommit:GetRepository
-          #     - codecommit:GetUploadArchiveStatus
-          #     - codecommit:UploadArchive
-          #   Resource: "*"
-          #   Effect: Allow
-            # codedeploy is actually used ?
-          # - Action:
-          #     - codedeploy:CreateDeployment
-          #     - codedeploy:GetApplication
-          #     - codedeploy:GetApplicationRevision
-          #     - codedeploy:GetDeployment
-          #     - codedeploy:GetDeploymentConfig
-          #     - codedeploy:RegisterApplicationRevision
-          #   Resource: "*"
-          #   Effect: Allow
-
           - Action:
               - codestar-connections:UseConnection
             Resource: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
             Effect: Allow
+
             # why all these services ?
-          - Action:
-              - elasticbeanstalk:*
-              - ec2:*
-              - elasticloadbalancing:*
-              - autoscaling:*
-              - cloudwatch:*
-              - s3:*
-              - sns:*
-              - cloudformation:*
-              - rds:*
-              - sqs:*
-              - ecs:*
-            Resource: "*"
-            Effect: Allow
-
-          # restrict here 
-          - Action:
-              - lambda:InvokeFunction
-              - lambda:ListFunctions
-            Resource: "*"
-            Effect: Allow
-
-          # # opswork?
           # - Action:
-          #     - opsworks:CreateDeployment
-          #     - opsworks:DescribeApps
-          #     - opsworks:DescribeCommands
-          #     - opsworks:DescribeDeployments
-          #     - opsworks:DescribeInstances
-          #     - opsworks:DescribeStacks
-          #     - opsworks:UpdateApp
-          #     - opsworks:UpdateStack
+          #     - elasticbeanstalk:*
+          #     - ec2:*
+          #     - elasticloadbalancing:*
+          #     - autoscaling:*
+          #     - cloudwatch:*
+          #     - s3:*
+          #     - sns:*
+          #     - cloudformation:*
+          #     - rds:*
+          #     - sqs:*
+          #     - ecs:*
           #   Resource: "*"
           #   Effect: Allow
 
-          # restrict here 
+          # # restrict here 
+          # - Action:
+          #     - lambda:InvokeFunction
+          #     - lambda:ListFunctions
+          #   Resource: "*"
+          #   Effect: Allow
 
           - Action:
               - cloudformation:CreateStack
@@ -119,59 +71,23 @@ Resources:
             Resource: !Sub arn:aws:cloudformation:eu-west-1:214364534595:stack/${Prefix}*
             Effect: Allow
 
-          # restrict here 
           - Action:
               - codebuild:BatchGetBuilds
               - codebuild:StartBuild
               - codebuild:BatchGetBuildBatches
               - codebuild:StartBuildBatch
-            Resource: "*"
+            Resource: 
+              - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-dev
+              - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev
+              - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-prod
+              - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-prod
             Effect: Allow
-
-          # devicefarm?
-          - Action:
-              - devicefarm:ListProjects
-              - devicefarm:ListDevicePools
-              - devicefarm:GetRun
-              - devicefarm:GetUpload
-              - devicefarm:CreateUpload
-              - devicefarm:ScheduleRun
-            Resource: "*"
-            Effect: Allow
-
-          # restrict here 
-          - Effect: Allow
-            Action:
-              - servicecatalog:ListProvisioningArtifacts
-              - servicecatalog:CreateProvisioningArtifact
-              - servicecatalog:DescribeProvisioningArtifact
-              - servicecatalog:DeleteProvisioningArtifact
-              - servicecatalog:UpdateProduct
-            Resource: "*"
 
           - Effect: Allow
             Action:
               - cloudformation:ValidateTemplate
             Resource: "*"
 
-          - Effect: Allow
-            Action:
-              - ecr:DescribeImages
-            Resource: "*"
-
-          - Effect: Allow
-            Action:
-              - states:DescribeExecution
-              - states:DescribeStateMachine
-              - states:StartExecution
-            Resource: "*"
-
-          - Effect: Allow
-            Action:
-              - appconfig:StartDeployment
-              - appconfig:StopDeployment
-              - appconfig:GetDeployment
-            Resource: "*"
 
   # remove managed policies
   CodeBuildRole:
