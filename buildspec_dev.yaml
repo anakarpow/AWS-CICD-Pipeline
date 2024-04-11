@@ -18,5 +18,5 @@ phases:
     commands:
       - source variables.sh
       - echo ${DEPLOYER_ROLE_ARN_DEV}
-      - source assume_deploy.sh
+      - source assume_role.sh
       - sam deploy --config-env resources-dev --profile DEV --no-fail-on-empty-changeset
