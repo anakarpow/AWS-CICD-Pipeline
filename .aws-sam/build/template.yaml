@@ -176,7 +176,7 @@ Resources:
           - s3:GetBucketLocation
         - Action: sts:AssumeRole
           Resource:
-          - arn:aws:iam::471685057907:role/DeployerRole-dev
+          - arn:aws:iam::471685057907:role/CASTDeployerRole-dev
           Effect: Allow
         - Effect: Allow
           Action:

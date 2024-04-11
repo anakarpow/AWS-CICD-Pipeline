@@ -34,7 +34,7 @@ Resources:
     Properties:
       Roles:
         - !Ref DeployerRole
-      PolicyName: !Sub AccessArtifactBucket-${Env}
+      PolicyName: !Sub CASTAccessArtifactBucket-${Env}
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -58,4 +58,19 @@ Resources:
               - kms:ReEncrypt*
               - kms:GenerateDataKey*
             Resource: arn:aws:kms:eu-west-1:471685057907:key/AWS_MANAGED_KEY
+            Effect: Allow
+
+  CreateResourcesPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles:
+        - !Ref DeployerRole
+      PolicyName: !Sub CASTCreateResourcesPolicy-${Env}
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - s3:createBucket
+            Resource:
+              - "*"
             Effect: Allow

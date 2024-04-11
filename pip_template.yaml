@@ -205,7 +205,7 @@ Resources:
           - Action: sts:AssumeRole # role has to be created in other account
             Resource:
               # - arn:aws:iam::471685057907:role/cdk-cast-file-publishing-role-471685057907-eu-west-1
-              - arn:aws:iam::471685057907:role/DeployerRole-dev
+              - arn:aws:iam::471685057907:role/CASTDeployerRole-dev
             Effect: Allow
 
           - Effect: Allow
