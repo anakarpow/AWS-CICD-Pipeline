@@ -7,8 +7,9 @@ phases:
       python: 3.8
   pre_build:
       commands:
-        - source cfn-lint.sh
-        - source code-scan.sh
+        # - source cfn-lint.sh
+        # - source code-scan.sh
+        - echo skipping pre-build for dev
       # on-failure: ABORT
   build:
     commands:

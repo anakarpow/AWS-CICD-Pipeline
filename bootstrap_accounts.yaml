@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: deploys resources for cross account pipeline in target accounts
+Globals:
+  Function:
+    Timeout: 300
+
+Parameters:
+  Env:
+    Description: Environment type.
+    Type: String
+    AllowedValues: [prod, dev, int]
+    ConstraintDescription: must specify prod, dev, or int.
+
+Resources:
+  DeployerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub CASTDeployerRole-${Env}
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - arn:aws:iam::214364534595:root
+                # - arn:aws:iam::471685057907:root not needed i think
+            Action:
+              - sts:AssumeRole
+
+  AccessArtifactBucket:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles:
+        - !Ref DeployerRole
+      PolicyName: !Sub AccessArtifactBucket-${Env}
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:GetEncryptionConfiguration
+              - s3:List*
+              - s3:DeleteObject*
+              - s3:PutObject*
+              - s3:Abort*
+            Resource:
+              - arn:aws:s3:::cdk-cast-assets-471685057907-eu-west-1
+              - arn:aws:s3:::cdk-cast-assets-471685057907-eu-west-1/*
+            Effect: Allow
+
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Resource: arn:aws:kms:eu-west-1:471685057907:key/AWS_MANAGED_KEY
+            Effect: Allow

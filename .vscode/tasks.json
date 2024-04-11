@@ -4,18 +4,38 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "Build",
+        "label": "Build Pipeline RES",
         "type": "shell",
-        "detail": "build container for deployement from current directory",
+        "detail": "",
         "command": "sam validate -t pip_template.yaml;  sam build --use-container --template pip_template.yaml;",
         "icon": {
           "id": "gear",
           "color": "terminal.ansiYellow"
         }
       },
+      {
+        "label": "Build Bootstrap DEV",
+        "type": "shell",
+        "detail": "",
+        "command": "sam validate -t bootstrap_accounts.yaml;  sam build --use-container --template bootstrap_accounts.yaml;",
+        "icon": {
+          "id": "gear",
+          "color": "terminal.ansiYellow"
+        }
+      },
+      {
+        "label": "Deploy Bootstrap DEV",
+        "type": "shell",
+        "detail": "deploy current container to RES stage.",
+        "command": "export AWS_PROFILE=471685057907_PA_DEVELOPER; sam deploy --config-env dev",
+        "icon": {
+          "id": "light-bulb",
+          "color": "terminal.ansiWhite"
+        }
+      },
       //  # rm build/ cast_package.egg-info/ -r
       {
-        "label": "Deploy RES",
+        "label": "Deploy Pipeline RES",
         "type": "shell",
         "detail": "deploy current container to RES stage.",
         "command": "export AWS_PROFILE=214364534595_PA_DEVELOPER; sam deploy --config-env default",
@@ -24,44 +44,13 @@
           "color": "terminal.ansiWhite"
         }
       },
-      {
-        "label": "Deploy DEV",
-        "type": "shell",
-        "detail": "deploy current container to DEV stage.",
-        "command": "export AWS_PROFILE=471685057907_PA_DEVELOPER; sam deploy --config-env dev",
-        "icon": {
-          "id": "light-bulb",
-          "color": "terminal.ansiGreen"
-        }
-      },
   
       {
-        "label": "Deploy INT",
-        "type": "shell",
-        "detail": "deploy current container to INT stage.",
-        "command": "export AWS_PROFILE=596480830369_PA_DEVELOPER; sam deploy --config-env int",
-        "icon": {
-          "id": "light-bulb",
-          "color": "terminal.ansiMagenta"
-        }
-      },
-      {
-        "label": "Deploy PROD",
-        "type": "shell",
-        "detail": "deploy current container to PROD stage.",
-        "command": "export AWS_PROFILE=936022423514_PA_FULLADMIN; sam deploy --config-env prod",
-        "icon": {
-          "id": "light-bulb",
-          "color": "terminal.ansiRed"
-        }
-      },
-  
-      {
-        "label": "Build & Deploy RES",
+        "label": "Build & Deploy Pipeline RES",
         "type": "shell",
         "dependsOn": [
-          "Build",
-          "Deploy RES"
+          "Build Pipeline RES",
+          "Deploy Pipeline RES"
         ],
         "dependsOrder": "sequence",
         "detail": "build and deploy to test code DEV environment",
@@ -70,154 +59,20 @@
           "color": "terminal.ansiWhite"
         }
       },
-      {
-        "label": "Build & Deploy DEV",
-        "type": "shell",
-        "dependsOn": [
-          "Build",
-          "Deploy DEV"
-        ],
-        "dependsOrder": "sequence",
-        "detail": "build and deploy to DEV environment",
-        "icon": {
-          "id": "circle-large-filled",
-          "color": "terminal.ansiGreen"
-        }
-      },
-      {
-        "label": "Build & Deploy INT",
-        "type": "shell",
-        "detail": "build and deploy to first test environment",
-        "dependsOn": [
-          "Build",
-          "Deploy INT"
-        ],
-        "dependsOrder": "sequence",
-        "icon": {
-          "id": "circle-large-filled",
-          "color": "terminal.ansiMagenta"
-        }
-      },
   
       {
-        "label": "Build & Deploy PROD",
+        "label": "Bootstrap DEV",
         "type": "shell",
-        "detail": "build and deploy to PROD environment",
         "dependsOn": [
-          "Build",
-          "Deploy PROD"
+          "Build Bootstrap DEV",
+          "Deploy Bootstrap DEV"
         ],
         "dependsOrder": "sequence",
+        "detail": "build and deploy to test code DEV environment",
         "icon": {
           "id": "circle-large-filled",
-          "color": "terminal.ansiRed"
+          "color": "terminal.ansiWhite"
         }
-      },
-      {
-        "label": "Configure VW Profile",
-        "type": "shell",
-        "command": "aws configure set aws_access_key_id --profile VW ${input:access_id};aws configure set aws_secret_access_key --profile VW ${input:access_key};aws configure set aws_session_token --profile VW ${input:session_token}"
-      },
-      {
-        "label": "set profile",
-        "type": "shell",
-        "command": "export AWS_PROFILE=471685057907_PA_DEVELOPER echo $AWS_PROFILE"
-      },
-      {
-        "label": "start Docker",
-        "type": "shell",
-        "command": "sudo service docker start",
-        "presentation": {
-          "reveal": "silent",
-          "close": true
-        }
-      },
-      {
-        "label": "start POSTGresql",
-        "type": "shell",
-        "command": "sudo service postgresql start ; sudo -u postgres psql;",
-        "presentation": {
-          "reveal": "always",
-          "close": false,
-          "revealProblems": "never"
-        }
-      },
-      {
-        "label": "Deploy Proxy DEV",
-        "command": [
-          "sam build --template outbound_proxy/proxy-paas-provision-proxy.yml;",
-          "export AWS_PROFILE=471685057907_PA_DEVELOPER ;sam deploy --config-file outbound_proxy/samconfig.toml"
-        ],
-        "type": "shell"
-      },
-      {
-        "label": "Deploy Proxy 2 DEV",
-        "command": [
-          "sam build --template outbound_proxy/proxy-paas-connect-to-vpc.yml;",
-          "export AWS_PROFILE=471685057907_PA_DEVELOPER ;sam deploy --config-file outbound_proxy/samconfig.toml --config-env connectDEV"
-        ],
-        "type": "shell"
-      },
-      {
-        "label": "Deploy Proxy 3 Lambda DEV",
-        "command": [
-          "sam build --template outbound_proxy/proxy-paas-lambda-example.yml;",
-          "export AWS_PROFILE=471685057907_PA_DEVELOPER ; sam deploy --config-file outbound_proxy/samconfig.toml --config-env lambdaDEV;",
-          "aws lambda update-function-code --function-name proxy-paas-lambda-example --zip-file fileb://outbound_proxy/proxy-paas-lambda-example.zip"
-        ],
-        "type": "shell"
-      },
-      {
-        "label": "Build&Deploy Proxy DEV",
-        "dependsOn": [
-          "Deploy Proxy DEV",
-          "Deploy Proxy 2 DEV",
-          "Deploy Proxy 3 Lambda DEV"
-        ],
-        "dependsOrder": "sequence",
-        "icon": {
-          "id": "x",
-          "color": "terminal.ansiYellow"
-        }
-      },
-      {
-        "label": "Deploy Proxy PROD",
-        "command": [
-          "sam build --template outbound_proxy/proxy-paas-provision-proxy.yml;",
-          "export AWS_PROFILE=936022423514_PA_FULLADMIN ;sam deploy --config-file outbound_proxy/samconfig.toml --config-env connectPROD"
-        ],
-        "type": "shell"
-      },
-      {
-        "label": "Deploy Proxy 2 PROD",
-        "command": [
-          "sam build --template outbound_proxy/proxy-paas-connect-to-vpc.yml;",
-          "export AWS_PROFILE=936022423514_PA_FULLADMIN ;sam deploy --config-file outbound_proxy/samconfig.toml --config-env connectPROD"
-        ],
-        "type": "shell"
-      },
-      {
-        "label": "Deploy Proxy 3 Lambda PROD",
-        "command": [
-          "sam build --template outbound_proxy/proxy-paas-lambda-example.yml;",
-          "export AWS_PROFILE=936022423514_PA_FULLADMIN ; sam deploy --config-file outbound_proxy/samconfig.toml --config-env lambdaPROD;",
-          "aws lambda update-function-code --function-name proxy-paas-lambda-example --zip-file fileb://outbound_proxy/proxy-paas-lambda-example.zip"
-        ],
-        "type": "shell"
-      },
-      {
-        "label": "Build&Deploy Proxy PROD",
-        "dependsOn": [
-          "Deploy Proxy PROD",
-          "Deploy Proxy 2 PROD",
-          "Deploy Proxy 3 Lambda PROD"
-        ],
-        "dependsOrder": "sequence",
-        "icon": {
-          "id": "x",
-          "color": "terminal.ansiYellow"
-        },
-        "problemMatcher": []
       }
     ],
     "inputs": [

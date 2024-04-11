@@ -102,8 +102,7 @@ Resources:
           - codebuild:StartBuildBatch
           Resource: '*'
           Effect: Allow
-        - Effect: Allow
-          Action:
+        - Action:
           - devicefarm:ListProjects
           - devicefarm:ListDevicePools
           - devicefarm:GetRun
@@ -111,6 +110,7 @@ Resources:
           - devicefarm:CreateUpload
           - devicefarm:ScheduleRun
           Resource: '*'
+          Effect: Allow
         - Effect: Allow
           Action:
           - servicecatalog:ListProvisioningArtifacts
@@ -176,7 +176,7 @@ Resources:
           - s3:GetBucketLocation
         - Action: sts:AssumeRole
           Resource:
-          - arn:aws:iam::471685057907:role/cdk-cast-file-publishing-role-471685057907-eu-west-1
+          - arn:aws:iam::471685057907:role/DeployerRole-dev
           Effect: Allow
         - Effect: Allow
           Action:
@@ -250,7 +250,7 @@ Resources:
             Provider: CodeStarSourceConnection
             Version: '1'
           Configuration:
-            BranchName: main
+            BranchName: dev
             ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
             DetectChanges: 'false'
             FullRepositoryId: dpp-clearingoffice/pipeline_test_repo
