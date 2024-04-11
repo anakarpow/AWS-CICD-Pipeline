@@ -21,41 +21,42 @@ Resources:
         Version: 2012-10-17
         Statement:
             #check this out, what for ? can be furhter restricted
-          - Action:
-              - iam:PassRole
-            Resource: "*"
-            Effect: Allow
-            Condition:
-              StringEqualsIfExists:
-                iam:PassedToService:
-                  - cloudformation.amazonaws.com
-                  - elasticbeanstalk.amazonaws.com
-                  - ec2.amazonaws.com
-                  - ecs-tasks.amazonaws.com
+          # - Action:
+          #     - iam:PassRole
+          #   Resource: "*"
+          #   Effect: Allow
+          #   Condition:
+          #     StringEqualsIfExists:
+          #       iam:PassedToService:
+          #         - cloudformation.amazonaws.com
+          #         - elasticbeanstalk.amazonaws.com
+          #         - ec2.amazonaws.com
+          #         - ecs-tasks.amazonaws.com
+
             # codecommit is actually used ?
-          - Action:
-              - codecommit:CancelUploadArchive
-              - codecommit:GetBranch
-              - codecommit:GetCommit
-              - codecommit:GetRepository
-              - codecommit:GetUploadArchiveStatus
-              - codecommit:UploadArchive
-            Resource: "*"
-            Effect: Allow
+          # - Action:
+          #     - codecommit:CancelUploadArchive
+          #     - codecommit:GetBranch
+          #     - codecommit:GetCommit
+          #     - codecommit:GetRepository
+          #     - codecommit:GetUploadArchiveStatus
+          #     - codecommit:UploadArchive
+          #   Resource: "*"
+          #   Effect: Allow
             # codedeploy is actually used ?
-          - Action:
-              - codedeploy:CreateDeployment
-              - codedeploy:GetApplication
-              - codedeploy:GetApplicationRevision
-              - codedeploy:GetDeployment
-              - codedeploy:GetDeploymentConfig
-              - codedeploy:RegisterApplicationRevision
-            Resource: "*"
-            Effect: Allow
-            # restrict to resouce should work
+          # - Action:
+          #     - codedeploy:CreateDeployment
+          #     - codedeploy:GetApplication
+          #     - codedeploy:GetApplicationRevision
+          #     - codedeploy:GetDeployment
+          #     - codedeploy:GetDeploymentConfig
+          #     - codedeploy:RegisterApplicationRevision
+          #   Resource: "*"
+          #   Effect: Allow
+
           - Action:
               - codestar-connections:UseConnection
-            Resource: "*"
+            Resource: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
             Effect: Allow
             # why all these services ?
           - Action:
@@ -80,18 +81,18 @@ Resources:
             Resource: "*"
             Effect: Allow
 
-          # opswork?
-          - Action:
-              - opsworks:CreateDeployment
-              - opsworks:DescribeApps
-              - opsworks:DescribeCommands
-              - opsworks:DescribeDeployments
-              - opsworks:DescribeInstances
-              - opsworks:DescribeStacks
-              - opsworks:UpdateApp
-              - opsworks:UpdateStack
-            Resource: "*"
-            Effect: Allow
+          # # opswork?
+          # - Action:
+          #     - opsworks:CreateDeployment
+          #     - opsworks:DescribeApps
+          #     - opsworks:DescribeCommands
+          #     - opsworks:DescribeDeployments
+          #     - opsworks:DescribeInstances
+          #     - opsworks:DescribeStacks
+          #     - opsworks:UpdateApp
+          #     - opsworks:UpdateStack
+          #   Resource: "*"
+          #   Effect: Allow
 
           # restrict here 
 
