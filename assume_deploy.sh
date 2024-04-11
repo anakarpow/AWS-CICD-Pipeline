@@ -1,8 +1,8 @@
 #!/bin/bash
 set -x
 
-# TODO how to pass variables to here ?
-ROLE_ARN=arn:aws:iam::471685057907:role/CASTDeployerRole-dev
+# TODO pass variables to here 
+ROLE_ARN=arn:aws:iam::471685057907:role/CAST-DeployerRole-dev
 OUTPUT_PROFILE=DEV
 
 echo "Assuming role $ROLE_ARN"

@@ -13,12 +13,16 @@ Parameters:
     - dev
     - int
     ConstraintDescription: must specify prod, dev, or int.
+  Prefix:
+    Description: prject prefix
+    Type: String
+    Default: CAST-
 Resources:
   DeployerRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName:
-        Fn::Sub: CASTDeployerRole-${Env}
+        Fn::Sub: ${Prefix}DeployerRole-${Env}
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
       AssumeRolePolicyDocument:
@@ -35,7 +39,7 @@ Resources:
       Roles:
       - Ref: DeployerRole
       PolicyName:
-        Fn::Sub: CASTAccessArtifactBucket-${Env}
+        Fn::Sub: ${Prefix}AccessArtifactBucket-${Env}
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -65,7 +69,7 @@ Resources:
       Roles:
       - Ref: DeployerRole
       PolicyName:
-        Fn::Sub: CASTCreateResourcesPolicy-${Env}
+        Fn::Sub: ${Prefix}CreateResourcesPolicy-${Env}
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
