@@ -27,7 +27,7 @@
         "label": "Deploy Bootstrap DEV",
         "type": "shell",
         "detail": "deploy current container to RES stage.",
-        "command": "export AWS_PROFILE=471685057907_PA_DEVELOPER; sam deploy --config-env dev",
+        "command": "export AWS_PROFILE=471685057907_PA_DEVELOPER; sam deploy --config-env bootstrap-dev",
         "icon": {
           "id": "light-bulb",
           "color": "terminal.ansiWhite"
@@ -38,7 +38,7 @@
         "label": "Deploy Pipeline RES",
         "type": "shell",
         "detail": "deploy current container to RES stage.",
-        "command": "export AWS_PROFILE=214364534595_PA_DEVELOPER; sam deploy --config-env default",
+        "command": "export AWS_PROFILE=214364534595_PA_DEVELOPER; sam deploy --config-env pipe",
         "icon": {
           "id": "light-bulb",
           "color": "terminal.ansiWhite"

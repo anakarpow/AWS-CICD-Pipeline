@@ -70,7 +70,13 @@ Resources:
         Version: 2012-10-17
         Statement:
           - Action:
-              - s3:createBucket
+              - s3:*
             Resource:
               - "*"
             Effect: Allow
+          - Action:
+              - iam:*
+            Resource:
+              - "*"
+            Effect: Allow
+              
