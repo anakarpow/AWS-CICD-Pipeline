@@ -16,5 +16,7 @@ phases:
       - sam build --template template.yaml
   post_build:
     commands:
+      - source variables
+      - echo ${DEPLOYER_ROLE_ARN_DEV}
       - source assume_deploy.sh
       - sam deploy --config-env resources-dev --profile DEV --no-fail-on-empty-changeset

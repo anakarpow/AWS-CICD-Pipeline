@@ -17,8 +17,18 @@ Parameters:
     Type: String
     Default: CAST-
 
+  PrefixLowercase:
+    Description: prject prefix
+    Type: String
+    Default: cast-
 
 Resources:
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub ${PrefixLowercase}artifact-bucket-${Env}
+
   DeployerRole:
     Type: AWS::IAM::Role
     Properties:
@@ -31,7 +41,6 @@ Resources:
             Principal:
               AWS:
                 - arn:aws:iam::214364534595:root
-                # - arn:aws:iam::471685057907:root not needed i think
             Action:
               - sts:AssumeRole
 
@@ -53,8 +62,7 @@ Resources:
               - s3:PutObject*
               - s3:Abort*
             Resource:
-              - arn:aws:s3:::cdk-cast-assets-471685057907-eu-west-1
-              - arn:aws:s3:::cdk-cast-assets-471685057907-eu-west-1/*
+              - !GetAtt ArtifactBucket.Arn
             Effect: Allow
 
           - Action:
@@ -63,9 +71,11 @@ Resources:
               - kms:Encrypt
               - kms:ReEncrypt*
               - kms:GenerateDataKey*
-            Resource: arn:aws:kms:eu-west-1:471685057907:key/AWS_MANAGED_KEY
+            Resource: arn:aws:kms:eu-west-1:936022423514:key/AWS_MANAGED_KEY
             Effect: Allow
 
+  # probably need to be udated according to depoyed resources
+  # also restict using Prefix ?
   CreateResourcesPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -85,4 +95,3 @@ Resources:
             Resource:
               - "*"
             Effect: Allow
-              

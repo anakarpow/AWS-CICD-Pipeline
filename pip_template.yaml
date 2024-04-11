@@ -276,7 +276,7 @@ Resources:
               Configuration:
                 BranchName: "dev"
                 ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
-                DetectChanges: "false"
+                DetectChanges: "true"
                 FullRepositoryId: "dpp-clearingoffice/pipeline_test_repo"
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:

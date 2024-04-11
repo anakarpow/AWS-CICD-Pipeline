@@ -12,11 +12,17 @@ parameter_overrides = ['Env=dev']
 
 [bootstrap-dev.deploy.parameters]
 stack_name = 'CAST-pipe-boostrap'
-s3_bucket = "cdk-cast-assets-471685057907-eu-west-1"
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
 parameter_overrides = ['Env=dev']
+
+[bootstrap-prod.deploy.parameters]
+stack_name = 'CAST-pipe-boostrap3'
+region = 'eu-west-1'
+capabilities = 'CAPABILITY_NAMED_IAM'
+tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
+parameter_overrides = ['Env=prod']
 
 
 [resources-dev.deploy.parameters]

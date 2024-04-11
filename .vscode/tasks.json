@@ -14,7 +14,7 @@
         }
       },
       {
-        "label": "Build Bootstrap DEV",
+        "label": "Build Bootstrap",
         "type": "shell",
         "detail": "",
         "command": "sam validate -t bootstrap_accounts.yaml;  sam build --use-container --template bootstrap_accounts.yaml;",
@@ -28,6 +28,16 @@
         "type": "shell",
         "detail": "deploy current container to RES stage.",
         "command": "export AWS_PROFILE=471685057907_PA_DEVELOPER; sam deploy --config-env bootstrap-dev",
+        "icon": {
+          "id": "light-bulb",
+          "color": "terminal.ansiWhite"
+        }
+      },
+      {
+        "label": "Deploy Bootstrap PROD",
+        "type": "shell",
+        "detail": "deploy current container to RES stage.",
+        "command": "export AWS_PROFILE=936022423514_PA_FULLADMIN; sam deploy --config-env bootstrap-prod",
         "icon": {
           "id": "light-bulb",
           "color": "terminal.ansiWhite"
@@ -66,6 +76,21 @@
         "dependsOn": [
           "Build Bootstrap DEV",
           "Deploy Bootstrap DEV"
+        ],
+        "dependsOrder": "sequence",
+        "detail": "build and deploy to test code DEV environment",
+        "icon": {
+          "id": "circle-large-filled",
+          "color": "terminal.ansiWhite"
+        }
+      }
+      
+      {
+        "label": "Bootstrap PROD",
+        "type": "shell",
+        "dependsOn": [
+          "Build Bootstrap",
+          "Deploy Bootstrap PROD"
         ],
         "dependsOrder": "sequence",
         "detail": "build and deploy to test code DEV environment",
