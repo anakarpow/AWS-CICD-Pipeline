@@ -17,4 +17,4 @@ phases:
   post_build:
     commands:
       - source assume_deploy.sh
-      - sam deploy --config-env dev --profile DEV --no-fail-on-empty-changeset
+      - sam deploy --config-env resources-dev --profile DEV --no-fail-on-empty-changeset
