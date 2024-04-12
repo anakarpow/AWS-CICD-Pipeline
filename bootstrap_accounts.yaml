@@ -73,8 +73,8 @@ Resources:
               - kms:ReEncrypt*
               - kms:GenerateDataKey*
             Resource:
-              - arn:aws:kms:eu-west-1:471685057907:key/AWS_MANAGED_KEY
-              - arn:aws:kms:eu-west-1:936022423514:key/AWS_MANAGED_KEY
+              - !Sub arn:aws:kms:eu-west-1:${AWS::AccountId}:key/AWS_MANAGED_KEY
+              # - arn:aws:kms:eu-west-1:936022423514:key/AWS_MANAGED_KEY
             Effect: Allow
 
   # probably need to be udated according to depoyed resources
@@ -91,19 +91,34 @@ Resources:
           - Action:
               - s3:*
             Resource:
-              - !Sub arn:aws:s3:::${PrefixLowercase}input-${Env}
-              - !Sub arn:aws:s3:::${PrefixLowercase}output-${Env}
-              - !Sub arn:aws:s3:::${PrefixLowercase}test-${Env}
+              - !Sub arn:aws:s3:::${PrefixLowercase}input-${Env}*
+              - !Sub arn:aws:s3:::${PrefixLowercase}output-${Env}*
+              - !Sub arn:aws:s3:::${PrefixLowercase}test-${Env}*
             Effect: Allow
 
           - Action:
               - iam:*
             Resource:
-              - "*"
+              - !Sub arn:aws:iam::${AWS::AccountId}:*/${Prefix}*
             Effect: Allow
 
           - Action:
               - lambda:*
             Resource:
-              - !Sub arn:aws:lambda:eu-west-1:471685057907:${Prefix}*
+              - !Sub arn:aws:lambda:eu-west-1:${AWS::AccountId}:function:${Prefix}*
+              # lambda layers
+              - arn:aws:lambda:eu-west-1:770693421928:layer:Klayers-p38-aws-psycopg2:1
+              - arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24
+            Effect: Allow
+
+          - Action:
+              - rds:*
+            Resource:
+              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${Prefix}*
+            Effect: Allow
+
+          - Action:
+              - secretsmanager:*
+            Resource:
+              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${Prefix}*
             Effect: Allow
