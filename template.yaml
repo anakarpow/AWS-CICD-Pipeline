@@ -610,7 +610,7 @@ Resources:
     Type: "AWS::RDS::DBSubnetGroup"
     UpdateReplacePolicy: Delete
     Properties:
-      DBSubnetGroupName: !Sub ${Prefix}subnet${StackId}
+      DBSubnetGroupName: !Sub ${PrefixLowercase}subnet${StackId}
       DBSubnetGroupDescription: Test Group
       SubnetIds:
         - !Ref Subnet1
