@@ -140,6 +140,7 @@ Resources:
               - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp/${PrefixLowercase}*
               - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group/${Prefix}*
               - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp/${Prefix}*
+              - arn:aws:ec2:eu-west-1:471685057907:vpc/vpc-0517670858bad1b7b # DEV VPC
 
             Effect: Allow
 
@@ -158,6 +159,7 @@ Resources:
           - Action:
               - secretsmanager:GetRandomPassword
               - secretsmanager:CreateSecretaction
+              - secretsmanager:CreateSecret
             Resource:
               - "*"
             Effect: Allow

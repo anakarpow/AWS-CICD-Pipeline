@@ -573,7 +573,7 @@ Resources:
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
     Properties:
-      Name: !Sub ${Prefix}-secret${StackId}
+      Name: !Sub ${Prefix}secret${StackId}
 
       Description: AWS RDS admin credentials
       GenerateSecretString:
