@@ -22,7 +22,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private
-      BucketName: !Sub ${PrefixLowercase}input-${Env}
+      BucketName: !Sub ${PrefixLowercase}input-${Env}-test
 
   TestFunction:
     Type: AWS::Serverless::Function
