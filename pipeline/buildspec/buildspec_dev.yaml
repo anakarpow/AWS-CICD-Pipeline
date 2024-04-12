@@ -13,7 +13,7 @@ phases:
       # on-failure: ABORT
   build:
     commands:
-      - sam build --template pipeline/templates/template.yaml
+      - sam build --template template.yaml
   post_build:
     commands:
       - source pipeline/scripts/variables.sh

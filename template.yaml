@@ -16,8 +16,6 @@ Parameters:
     Description: Unique Id for stack, avoids resources name repetition
     Type: String
     Default: -test
-    # ConstraintDescription: must specify prod, dev, or int.
-
 
   Prefix:
     Description: prject prefix
@@ -41,7 +39,7 @@ Resources:
     UpdateReplacePolicy: Retain
     DeletionPolicy: Delete
     Properties: 
-      FunctionName: !Sub ${Prefix}Test-CICD-${Env}
+      FunctionName: !Sub ${Prefix}-CICD-${Env}${StackId}
       Description: testing CICD
       CodeUri: lambda/
       Handler: app.lambda_handler

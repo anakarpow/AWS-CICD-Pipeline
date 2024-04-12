@@ -13,7 +13,7 @@ stack_name = 'CAST-pipelines'
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
-parameter_overrides = ['Env=dev']
+parameter_overrides = ['Env=dev','StackId=-test']
 
 
 #########################################################
@@ -25,7 +25,7 @@ stack_name = 'CAST-pipe-bootstrap'
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
-parameter_overrides = ['Env=dev']
+parameter_overrides = ['Env=dev','StackId=-test']
 #########################################################
 [resources-dev.deploy.parameters]
 stack_name = 'CAST-resources'
@@ -45,7 +45,7 @@ stack_name = 'CAST-pipe-bootstrap'
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
-parameter_overrides = ['Env=prod']
+parameter_overrides = ['Env=prod','StackId=-test']
 #########################################################
 [resources-prod.deploy.parameters]
 stack_name = 'CAST-resources'
@@ -53,4 +53,4 @@ s3_bucket = "cast-artifact-bucket-prod"
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
-parameter_overrides = ['Env=prod']
+parameter_overrides = ['Env=prod','StackId=-test']
