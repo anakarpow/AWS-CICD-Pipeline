@@ -99,7 +99,8 @@ Resources:
           - Action:
               - iam:*
             Resource:
-              - !Sub arn:aws:iam::${AWS::AccountId}:*/${Prefix}*
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/${Prefix}*
+              - !Sub arn:aws:iam::${AWS::AccountId}:policy/${Prefix}*
             Effect: Allow
 
           - Action:

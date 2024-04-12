@@ -72,8 +72,7 @@ Resources:
           - kms:ReEncrypt*
           - kms:GenerateDataKey*
           Resource:
-          - arn:aws:kms:eu-west-1:471685057907:key/AWS_MANAGED_KEY
-          - arn:aws:kms:eu-west-1:936022423514:key/AWS_MANAGED_KEY
+          - Fn::Sub: arn:aws:kms:eu-west-1:${AWS::AccountId}:key/AWS_MANAGED_KEY
           Effect: Allow
   CreateResourcesPolicy:
     Type: AWS::IAM::Policy
@@ -95,7 +94,8 @@ Resources:
         - Action:
           - iam:*
           Resource:
-          - '*'
+          - Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/${Prefix}*
+          - Fn::Sub: arn:aws:iam::${AWS::AccountId}:policy/${Prefix}*
           Effect: Allow
         - Action:
           - lambda:*
@@ -103,4 +103,14 @@ Resources:
           - Fn::Sub: arn:aws:lambda:eu-west-1:${AWS::AccountId}:function:${Prefix}*
           - arn:aws:lambda:eu-west-1:770693421928:layer:Klayers-p38-aws-psycopg2:1
           - arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24
+          Effect: Allow
+        - Action:
+          - rds:*
+          Resource:
+          - Fn::Sub: arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${Prefix}*
+          Effect: Allow
+        - Action:
+          - secretsmanager:*
+          Resource:
+          - Fn::Sub: arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${Prefix}*
           Effect: Allow

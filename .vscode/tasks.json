@@ -7,7 +7,7 @@
         "label": "Build Pipeline RES",
         "type": "shell",
         "detail": "",
-        "command": "sam validate -t templates/pip_template.yaml;  sam build --use-container --template templates/pip_template.yaml;",
+        "command": "sam validate -t pipeline/templates/pip_template.yaml;  sam build --use-container --template pipeline/templates/pip_template.yaml;",
         "icon": {
           "id": "gear",
           "color": "terminal.ansiYellow"
@@ -17,7 +17,7 @@
         "label": "Build Bootstrap",
         "type": "shell",
         "detail": "",
-        "command": "sam validate -t templates/bootstrap_accounts.yaml;  sam build --use-container --template templates/bootstrap_accounts.yaml;",
+        "command": "sam validate -t pipeline/templates/bootstrap_accounts.yaml;  sam build --use-container --template pipeline/templates/bootstrap_accounts.yaml;",
         "icon": {
           "id": "gear",
           "color": "terminal.ansiYellow"

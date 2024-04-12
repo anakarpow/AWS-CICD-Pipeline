@@ -12,6 +12,13 @@ Parameters:
     AllowedValues: [prod, dev, int]
     ConstraintDescription: must specify prod, dev, or int.
 
+  StackId:
+    Description: Unique Id for stack, avoids resources name repetition
+    Type: String
+    Default: -test
+    # ConstraintDescription: must specify prod, dev, or int.
+
+
   Prefix:
     Description: prject prefix
     Type: String
@@ -27,7 +34,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private
-      BucketName: !Sub ${PrefixLowercase}input-${Env}-test
+      BucketName: !Sub ${PrefixLowercase}input-${Env}${StackId}
 
   TestFunction:
     Type: AWS::Serverless::Function

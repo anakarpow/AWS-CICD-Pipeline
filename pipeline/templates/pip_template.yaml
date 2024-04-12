@@ -115,7 +115,7 @@ Resources:
     Properties:
       Name: "dpp-dco-cast-dev"
       Source:
-        BuildSpec: "buildspec_dev.yaml"
+        BuildSpec: "pipeline/buildspec/buildspec_dev.yaml"
         InsecureSsl: false
         Type: "CODEPIPELINE"
       Artifacts:
@@ -153,7 +153,7 @@ Resources:
     Properties:
       Name: "dpp-dco-cast-prod"
       Source:
-        BuildSpec: "buildspec_prod.yaml"
+        BuildSpec: "pipeline/buildspec/buildspec_prod.yaml"
         InsecureSsl: false
         Type: "CODEPIPELINE"
       Artifacts:
