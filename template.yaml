@@ -12,6 +12,11 @@ Parameters:
     AllowedValues: [prod, dev, int]
     ConstraintDescription: must specify prod, dev, or int.
 
+  Prefix:
+    Description: prject prefix
+    Type: String
+    Default: CAST-
+
   PrefixLowercase:
     Description: project prefix
     Type: String
@@ -29,6 +34,7 @@ Resources:
     UpdateReplacePolicy: Retain
     DeletionPolicy: Delete
     Properties: 
+      FunctionName: !Sub ${Prefix}Test-CICD-${Env}
       Description: testing CICD
       CodeUri: lambda/
       Handler: app.lambda_handler
