@@ -88,6 +88,7 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
+        
           - Action:
               - s3:*
             Resource:
@@ -119,7 +120,19 @@ Resources:
             Effect: Allow
 
           - Action:
+              - ec2:*
+            Resource:
+              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group/${Prefix}*
+            Effect: Allow
+
+          - Action:
               - secretsmanager:*
             Resource:
-              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${Prefix}*
+              - !Sub arn:aws:secretsmanager:eu-west-1:${AWS::AccountId}:secret/${Prefix}*
+            Effect: Allow
+
+          - Action:
+              - cloudwatch:*
+            Resource:
+              - !Sub arn:aws:cloudwatch:eu-west-1:${AWS::AccountId}:*
             Effect: Allow
