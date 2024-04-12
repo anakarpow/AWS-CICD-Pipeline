@@ -6,18 +6,18 @@ version = 0.1
 
 
 #########################################################
-                    # PIPELINE
+# PIPELINE
 #########################################################
 [pipe.deploy.parameters]
 stack_name = 'CAST-pipelines'
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
-parameter_overrides = ['Env=dev','StackId=-test']
+parameter_overrides = ['Env=dev', 'StackId=-test']
 
 
 #########################################################
-                    # DEV
+# DEV
 #########################################################
 
 [bootstrap-dev.deploy.parameters]
@@ -25,7 +25,7 @@ stack_name = 'CAST-pipe-bootstrap'
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
-parameter_overrides = ['Env=dev','StackId=-test']
+parameter_overrides = ['Env=dev', 'StackId=-test']
 #########################################################
 [resources-dev.deploy.parameters]
 stack_name = 'CAST-resources'
@@ -33,11 +33,38 @@ s3_bucket = "cast-artifact-bucket-dev"
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
-parameter_overrides = ['Env=dev','StackId=-test']
+parameter_overrides = [
+    'Env=dev',
+    'StackId=-test',
+    'StageAccount=471685057907',
+    'ProxyAccount=906046731999',
+    'CreateNewSecret=False',
+    'GeneralName=CAST1',
+    'VPCId=vpc-0517670858bad1b7b',
+    'Subnet1=subnet-0c0de0a7916e385ec',
+    'Subnet2=subnet-092ee8f5c41040211',
+    # BUCKET VARIABLES
+    'BucketInput=cast-input-dev',
+    'BucketInputMetering=consumer-bucket-471685057907',
+    'BucketInputBilling=vwag-dpp-billing-detailed-billing-reports',
+    'BucketOutput=cast-output-dev',
+    'BucketOutputMetering=consumer-bucket-471685057907',
+    'BucketOutputMeteringDashboard=crd-input-bucket',
+    'BucketCrossAccount=dpp-dco-metering-cross-account',
+    #LAMBDA VARIABLES
+    'KMS=arn:aws:kms:eu-west-1:471685057907:key/e8de8941-b7fb-4310-8906-4edd8877facc',
+    'MeteringApiSM=meteringAPI',
+    # DASHBOARD VARIABLES
+    'CodeBuild=dpp-test',
+    # ROLES
+    'BillingRole=vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW',
+    'ApiRole=arn:aws:iam::715146888639:role/dcodev',
+    'CreateBaseResourcesStatement=False',
+]
 
 
 #########################################################
-                    # PROD
+# PROD
 #########################################################
 
 [bootstrap-prod.deploy.parameters]
@@ -45,7 +72,7 @@ stack_name = 'CAST-pipe-bootstrap'
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
-parameter_overrides = ['Env=prod','StackId=-test']
+parameter_overrides = ['Env=prod', 'StackId=-test']
 #########################################################
 [resources-prod.deploy.parameters]
 stack_name = 'CAST-resources'
@@ -53,4 +80,4 @@ s3_bucket = "cast-artifact-bucket-prod"
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
-parameter_overrides = ['Env=prod','StackId=-test']
+parameter_overrides = ['Env=prod', 'StackId=-test']
