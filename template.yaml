@@ -23,3 +23,18 @@ Resources:
     Properties:
       AccessControl: Private
       BucketName: !Sub ${PrefixLowercase}input-${Env}
+
+  TestFunction:
+    Type: AWS::Serverless::Function
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
+    Properties: 
+      Description: testing CICD
+      CodeUri: lambda/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Timeout: 320
+      MemorySize: 2000
+      Layers:
+        - arn:aws:lambda:eu-west-1:770693421928:layer:Klayers-p38-aws-psycopg2:1
+        - arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24
