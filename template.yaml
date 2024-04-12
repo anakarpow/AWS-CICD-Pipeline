@@ -113,19 +113,19 @@ Parameters:
     Description: Proxy AccountID
     NoEcho: true
 
-  CreateBaseResourcesStatement:
-    Type: String
-    Description: to create base resources like buckets
-    AllowedValues: ["True", "False"]
-    Default: "False"
-    NoEcho: true
+  # CreateBaseResourcesStatement:
+  #   Type: String
+  #   Description: to create base resources like buckets
+  #   AllowedValues: ["True", "False"]
+  #   Default: "False"
+  #   NoEcho: true
 
 Conditions:
   ProdResources: !Equals [!Ref Env, prod]
   IntResources: !Equals [!Ref Env, int]
-  CreateBaseResources: !Equals
-    - !Ref CreateBaseResourcesStatement
-    - "True"
+  # CreateBaseResources: !Equals
+  #   - !Ref CreateBaseResourcesStatement
+  #   - "True"
 
 Resources:
   # maybe have separate bucket template
@@ -395,7 +395,7 @@ Resources:
     Properties:
       FunctionName: !Sub ${Prefix}CRC${StackId}
       Description: CRC -- Reads input and generates Cost Reports
-      CodeUri: cost-reporting/
+      CodeUri: lambda/
       Role: # reference this ?
         !If [
           ProdResources,
@@ -448,7 +448,7 @@ Resources:
     Properties:
       FunctionName: !Sub ${Prefix}MDB${StackId}
       Description: MDB -- Reads input from metering Services and writes it to the DB
-      CodeUri: metering/
+      CodeUri: lambda/
       Role:
         !If [
           ProdResources,
