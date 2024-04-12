@@ -96,7 +96,13 @@ Resources:
           Resource:
           - Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/${Prefix}*
           - Fn::Sub: arn:aws:iam::${AWS::AccountId}:policy/${Prefix}*
+          - arn:aws:iam::471685057907:role/vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW
           Effect: Allow
+        - Action:
+          - iam:DeleteRolePolicy
+          Resource:
+          - arn:aws:iam::471685057907:role/vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW
+          Effect: Deny
         - Action:
           - iam:getRolePolicy
           Resource:
@@ -119,6 +125,8 @@ Resources:
           Resource:
           - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group/${PrefixLowercase}*
           - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp/${PrefixLowercase}*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group/${Prefix}*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp/${Prefix}*
           Effect: Allow
         - Action:
           - ec2:DescribeSecurityGroups
