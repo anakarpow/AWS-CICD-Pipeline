@@ -13,9 +13,9 @@ phases:
       # on-failure: ABORT
   build:
     commands:
-      - sam build --template template.yaml
+      - sam build --template templates/template.yaml
   post_build:
     commands:
-      - source variables.sh
-      - source assume_role_dev.sh
+      - source scripts/variables.sh
+      - source scripts/assume_role_dev.sh
       - sam deploy --config-env resources-dev --profile DEV --no-fail-on-empty-changeset
