@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: CAST resources
+Globals:
+  Function:
+    Timeout: 300
+
+Parameters:
+  Env:
+    Description: Environment type.
+    Type: String
+    AllowedValues: [prod, dev, int]
+    ConstraintDescription: must specify prod, dev, or int.
+
+  StackId:
+    Description: Unique Id for stack, avoids resources name repetition
+    Type: String
+    Default: -test
+
+  Prefix:
+    Description: prject prefix
+    Type: String
+    Default: CAST-
+
+  PrefixLowercase:
+    Description: project prefix
+    Type: String
+    Default: cast-
+
+Resources:
+  CASTInputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub ${PrefixLowercase}input-${Env}${StackId}
+
+  TestFunction:
+    Type: AWS::Serverless::Function
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
+    Properties: 
+      FunctionName: !Sub ${Prefix}-CICD-${Env}${StackId}
+      Description: testing CICD
+      CodeUri: lambda/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Timeout: 320
+      MemorySize: 2000
+      Layers:
+        - arn:aws:lambda:eu-west-1:770693421928:layer:Klayers-p38-aws-psycopg2:1
+        - arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24
