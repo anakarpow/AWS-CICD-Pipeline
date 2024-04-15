@@ -123,14 +123,19 @@ Resources:
         - Action:
           - ec2:*
           Resource:
-          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group/${PrefixLowercase}*
-          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp/${PrefixLowercase}*
-          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group/${Prefix}*
-          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp/${Prefix}*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:${PrefixLowercase}*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${PrefixLowercase}*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:${Prefix}*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${Prefix}*
           - arn:aws:ec2:eu-west-1:471685057907:vpc/vpc-0517670858bad1b7b
           Effect: Allow
         - Action:
           - ec2:DescribeSecurityGroups
+          Resource:
+          - '*'
+          Effect: Allow
+        - Action:
+          - secretsmanager:TagResource
           Resource:
           - '*'
           Effect: Allow

@@ -88,7 +88,6 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-        
           - Action:
               - s3:*
             Resource:
@@ -104,7 +103,6 @@ Resources:
               - !Sub arn:aws:iam::${AWS::AccountId}:policy/${Prefix}*
               - arn:aws:iam::471685057907:role/vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW
             Effect: Allow
-
 
           - Action:
               - iam:DeleteRolePolicy
@@ -136,10 +134,10 @@ Resources:
           - Action:
               - ec2:*
             Resource:
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group/${PrefixLowercase}*
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp/${PrefixLowercase}*
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group/${Prefix}*
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp/${Prefix}*
+              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:${PrefixLowercase}*
+              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${PrefixLowercase}*
+              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:${Prefix}*
+              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${Prefix}*
               - arn:aws:ec2:eu-west-1:471685057907:vpc/vpc-0517670858bad1b7b # DEV VPC
 
             Effect: Allow
@@ -149,7 +147,7 @@ Resources:
             Resource:
               - "*"
             Effect: Allow
-
+            
           - Action:
               - secretsmanager:*
             Resource:
@@ -160,6 +158,7 @@ Resources:
               - secretsmanager:GetRandomPassword
               - secretsmanager:CreateSecretaction
               - secretsmanager:CreateSecret
+              - secretsmanager:TagResource
             Resource:
               - "*"
             Effect: Allow

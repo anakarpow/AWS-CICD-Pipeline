@@ -367,6 +367,7 @@ Resources:
 
   LambdaVPCAccess:
     Type: AWS::IAM::Policy
+    DeletionPolicy: Delete
     Properties:
       PolicyName: !Sub ${Prefix}LambdaVPCAccess
       PolicyDocument:
