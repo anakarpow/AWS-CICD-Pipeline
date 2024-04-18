@@ -142,3 +142,8 @@ Resources:
           Resource:
           - Fn::Sub: arn:aws:iam::${AWS::AccountId}:*
           Effect: Allow
+        - Action:
+          - secretsmanager:GetRandomPassword
+          Resource:
+          - '*'
+          Effect: Allow
