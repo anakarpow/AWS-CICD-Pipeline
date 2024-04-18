@@ -142,22 +142,23 @@ Resources:
           - Action:
               - secretsmanager:*
             Resource:
-              - !Sub arn:aws:secretsmanager:eu-west-1:${AWS::AccountId}:secret/${Prefix}*
+              - !Sub arn:aws:secretsmanager:{AWS::AccountId}:secret:*
             Effect: Allow
 
-          - Action:
-              - secretsmanager:GetRandomPassword
-              - secretsmanager:CreateSecretaction
-              - secretsmanager:CreateSecret
-              - secretsmanager:TagResource
-            Resource:
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:*
-            Effect: Allow
+          # - Action:
+          #     - secretsmanager:GetRandomPassword
+          #     - secretsmanager:CreateSecretaction
+          #     - secretsmanager:CreateSecret
+          #     - secretsmanager:TagResource
+          #   Resource:
+          #     - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:*
+          #   Effect: Allow
 
           - Action:
               - cloudwatch:*
             Resource:
-              - !Sub arn:aws:cloudwatch:eu-west-1:${AWS::AccountId}:*
+              - !Sub arn:aws:secretsmanager:eu-west-1:${AWS::AccountId}:secret:*
+
             Effect: Allow
 
           # - Action:
