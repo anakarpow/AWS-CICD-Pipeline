@@ -28,7 +28,7 @@ tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC
 parameter_overrides = ['Env=dev', 'StackId=-test']
 #########################################################
 [resources-dev.deploy.parameters]
-stack_name = 'CAST-resources3'
+stack_name = 'CAST-resources'
 s3_bucket = "cast-artifact-bucket-dev"
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
