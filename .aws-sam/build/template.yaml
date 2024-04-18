@@ -96,17 +96,7 @@ Resources:
           Resource:
           - Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/${Prefix}*
           - Fn::Sub: arn:aws:iam::${AWS::AccountId}:policy/${Prefix}*
-          - arn:aws:iam::471685057907:role/vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW
-          Effect: Allow
-        - Action:
-          - iam:DeleteRolePolicy
-          Resource:
-          - arn:aws:iam::471685057907:role/vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW
-          Effect: Deny
-        - Action:
-          - iam:getRolePolicy
-          Resource:
-          - Fn::Sub: arn:aws:iam::${AWS::AccountId}:*
+          - arn:aws:iam::471685057907:role/ vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW
           Effect: Allow
         - Action:
           - lambda:*
@@ -129,9 +119,10 @@ Resources:
           - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${Prefix}*
           - arn:aws:ec2:eu-west-1:471685057907:vpc/vpc-0517670858bad1b7b
           - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:*
+          - arn:aws:ec2:eu-west-1:471685057907:*
           Effect: Allow
         - Action:
-          - ec2:DescribeSecurityGroups
+          - ec2:Describe*
           Resource:
           - '*'
           Effect: Allow
@@ -146,10 +137,15 @@ Resources:
           - secretsmanager:CreateSecret
           - secretsmanager:TagResource
           Resource:
-          - '*'
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:*
           Effect: Allow
         - Action:
           - cloudwatch:*
           Resource:
           - Fn::Sub: arn:aws:cloudwatch:eu-west-1:${AWS::AccountId}:*
+          Effect: Allow
+        - Action:
+          - iam:getRolePolicy
+          Resource:
+          - Fn::Sub: arn:aws:iam::${AWS::AccountId}:*
           Effect: Allow
