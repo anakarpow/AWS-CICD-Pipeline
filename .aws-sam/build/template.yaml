@@ -96,7 +96,7 @@ Resources:
           Resource:
           - Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/${Prefix}*
           - Fn::Sub: arn:aws:iam::${AWS::AccountId}:policy/${Prefix}*
-          - arn:aws:iam::471685057907:role/ vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW
+          - arn:aws:iam::471685057907:role/vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW
           Effect: Allow
         - Action:
           - lambda:*
@@ -109,6 +109,7 @@ Resources:
           - rds:*
           Resource:
           - Fn::Sub: arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${PrefixLowercase}*
+          - Fn::Sub: arn:aws:rds:eu-west-1:${AWS::AccountId}:cluster-pg:default.aurora-postgresql13
           Effect: Allow
         - Action:
           - ec2:*
@@ -129,20 +130,12 @@ Resources:
         - Action:
           - secretsmanager:*
           Resource:
-          - Fn::Sub: arn:aws:secretsmanager:{AWS::AccountId}:secret:*
-          Effect: Allow
-        - Action:
-          - secretsmanager:GetRandomPassword
-          - secretsmanager:CreateSecretaction
-          - secretsmanager:CreateSecret
-          - secretsmanager:TagResource
-          Resource:
-          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:*
+          - Fn::Sub: arn:aws:secretsmanager:eu-west-1:${AWS::AccountId}:*
           Effect: Allow
         - Action:
           - cloudwatch:*
           Resource:
-          - Fn::Sub: arn:aws:secretsmanager:eu-west-1:${AWS::AccountId}:secret:*
+          - Fn::Sub: arn:aws:cloudwatch:eu-west-1:${AWS::AccountId}:*:*
           Effect: Allow
         - Action:
           - iam:getRolePolicy
