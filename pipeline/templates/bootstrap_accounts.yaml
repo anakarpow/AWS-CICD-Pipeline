@@ -139,11 +139,17 @@ Resources:
               - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:${Prefix}*
               - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${Prefix}*
               - arn:aws:ec2:eu-west-1:471685057907:vpc/vpc-0517670858bad1b7b # DEV VPC
+              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:*
+              - arn:aws:ec2:eu-west-1:471685057907:* # solved EC2 createSecuGroup 
+
+
+
 
             Effect: Allow
 
           - Action:
               - ec2:DescribeSecurityGroups
+              - ec2:DescribeSubnets
             Resource:
               - "*"
             Effect: Allow
