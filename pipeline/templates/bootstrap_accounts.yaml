@@ -118,7 +118,7 @@ Resources:
               - rds:*
             Resource:
               - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${PrefixLowercase}*
-              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:default.aurora-postgresql13*
+              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:cluster-pg:default.aurora-postgresql13*
 
             Effect: Allow
 
@@ -159,7 +159,7 @@ Resources:
           - Action:
               - cloudwatch:*
             Resource:
-              - !Sub arn:aws:cloudwatch:eu-west-1:${AWS::AccountId}:*
+              - !Sub arn:aws:cloudwatch:eu-west-1:${AWS::AccountId}:*:*
 
             Effect: Allow
 
