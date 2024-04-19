@@ -28,18 +28,18 @@ tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC
 parameter_overrides = ['Env=dev', 'StackId=-test']
 #########################################################
 [resources-dev.deploy.parameters]
-stack_name = 'CAST-resources2'
+stack_name = 'CAST-resources'
 s3_bucket = "cast-artifact-bucket-dev"
 region = 'eu-west-1'
 capabilities = 'CAPABILITY_NAMED_IAM'
 tags = " GITC- GITC-Risk Class=\"3\" GITC- Data Classification=\"internal\" GITC- Data Classification=\"true\" GITC-ApplicationID=\"82299\" backup=\"true\" "
 parameter_overrides = [
     'Env=dev',
-    'StackId=-test2',
+    'StackId=-test',
     'StageAccount=471685057907',
     'ProxyAccount=906046731999',
     'CreateNewSecret=False',
-    'GeneralName=CAST1',
+    'GeneralName=test',
     'VPCId=vpc-0517670858bad1b7b',
     'Subnet1=subnet-0c0de0a7916e385ec',
     'Subnet2=subnet-092ee8f5c41040211',
