@@ -27,13 +27,12 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-
           - Action:
               - codestar-connections:UseConnection
             Resource: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
             Effect: Allow
 
-          - Action: # allos Git to load to S3 bucket 
+          - Action: # allos Git to load to S3 bucket
               - s3:*
             Resource: arn:aws:s3:::codepipeline-eu-west-1-*
             Effect: Allow
@@ -84,7 +83,7 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-        # allows to write logs 
+          # allows to write logs
           - Effect: Allow
             Resource:
               - arn:aws:logs:eu-west-1:214364534595:log-group:*
@@ -108,7 +107,6 @@ Resources:
               - arn:aws:iam::471685057907:role/CAST-DeployerRole-dev
               - arn:aws:iam::936022423514:role/CAST-DeployerRole-prod
             Effect: Allow
-
 
   CodeBuildDEV:
     Type: "AWS::CodeBuild::Project"
@@ -195,9 +193,10 @@ Resources:
         Location: !Sub "codepipeline-${AWS::Region}-922520304512"
         Type: "S3"
       Stages:
-        - Name: "Source"
+        - Name: "SourceAllRepos"
           Actions:
-            - Name: "Source"
+
+            - Name: "SourceCastMain"
               ActionTypeId:
                 Category: "Source"
                 Owner: "AWS"
@@ -210,14 +209,33 @@ Resources:
                 FullRepositoryId: "dpp-clearingoffice/pipeline_test_repo"
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
-                - Name: "SourceArtifact"
+                - Name: "SourceArtifactMain"
               Region: !Ref AWS::Region
-              Namespace: "SourceVariables"
+              Namespace: "SourceVariablesMain"
               RunOrder: 1
 
-        - Name: "BuildDev"
+            - Name: "SourceSES"
+              ActionTypeId:
+                Category: "Source"
+                Owner: "AWS"
+                Provider: "CodeStarSourceConnection"
+                Version: "1"
+              Configuration:
+                BranchName: "main"
+                ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
+                DetectChanges: "true"
+                FullRepositoryId: "dpp-clearingoffice/temp_test_repo"
+                OutputArtifactFormat: "CODE_ZIP"
+              OutputArtifacts:
+                - Name: "SourceArtifactSES"
+              Region: !Ref AWS::Region
+              Namespace: "SourceVariablesSES"
+              RunOrder: 1
+
+        - Name: "BuildAllRepos"
           Actions:
-            - Name: "BuildDev"
+
+            - Name: "BuildMain"
               ActionTypeId:
                 Category: "Build"
                 Owner: "AWS"
@@ -226,7 +244,20 @@ Resources:
               Configuration:
                 ProjectName: !Ref CodeBuildDEV
               InputArtifacts:
-                - Name: "SourceArtifact"
+                - Name: "SourceArtifactMain"
+              Region: !Ref AWS::Region
+              RunOrder: 1
+
+            - Name: "BuildSES"
+              ActionTypeId:
+                Category: "Build"
+                Owner: "AWS"
+                Provider: "CodeBuild"
+                Version: "1"
+              Configuration:
+                ProjectName: !Ref CodeBuildDEV
+              InputArtifacts:
+                - Name: "SourceArtifactSES"
               Region: !Ref AWS::Region
               RunOrder: 1
 
@@ -240,6 +271,7 @@ Resources:
         Type: "S3"
       Stages:
         - Name: "Source"
+
           Actions:
             - Name: "Source"
               ActionTypeId:
@@ -258,7 +290,9 @@ Resources:
               Region: !Ref AWS::Region
               Namespace: "SourceVariables"
               RunOrder: 1
+
         - Name: "BuildProd"
+
           Actions:
             - Name: "BuildProd"
               ActionTypeId:
