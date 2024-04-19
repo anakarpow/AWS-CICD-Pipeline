@@ -102,7 +102,7 @@ Resources:
     Properties:
       Name: dpp-dco-cast-dev
       Source:
-        BuildSpec: pipeline/buildspec/buildspec_dev.yaml
+        BuildSpec: deployment/buildspec/buildspec_dev.yaml
         InsecureSsl: false
         Type: CODEPIPELINE
       Artifacts:
@@ -118,7 +118,7 @@ Resources:
         - Name: CODEBUILD_CONFIG_AUTO_DISCOVER
           Type: PLAINTEXT
           Value: 'true'
-        Image: public.ecr.aws/sam/build-python3.8:1.52.0-20220610003848
+        Image: public.ecr.aws/sam/build-python3.11:1.115.0-20240411212301
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -143,7 +143,7 @@ Resources:
     Properties:
       Name: dpp-dco-cast-prod
       Source:
-        BuildSpec: pipeline/buildspec/buildspec_prod.yaml
+        BuildSpec: deployment/buildspec/buildspec_prod.yaml
         InsecureSsl: false
         Type: CODEPIPELINE
       Artifacts:
@@ -159,7 +159,7 @@ Resources:
         - Name: CODEBUILD_CONFIG_AUTO_DISCOVER
           Type: PLAINTEXT
           Value: 'true'
-        Image: public.ecr.aws/sam/build-python3.8:1.52.0-20220610003848
+        Image: public.ecr.aws/sam/build-python3.11:1.115.0-20240411212301
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -184,7 +184,7 @@ Resources:
     Properties:
       Name: dpp-dco-cast-dev-ses
       Source:
-        BuildSpec: buildspec_dev.yaml
+        BuildSpec: deployment/buildspec/buildspec_dev.yaml
         InsecureSsl: false
         Type: CODEPIPELINE
       Artifacts:
@@ -242,34 +242,16 @@ Resources:
             Provider: CodeStarSourceConnection
             Version: '1'
           Configuration:
-            BranchName: dev
+            BranchName: DEV
             ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
             DetectChanges: 'true'
-            FullRepositoryId: dpp-clearingoffice/pipeline_test_repo
+            FullRepositoryId: dpp-clearingoffice/CAST
             OutputArtifactFormat: CODE_ZIP
           OutputArtifacts:
           - Name: SourceArtifactMain
           Region:
             Ref: AWS::Region
           Namespace: SourceVariablesMain
-          RunOrder: 1
-        - Name: SourceSES
-          ActionTypeId:
-            Category: Source
-            Owner: AWS
-            Provider: CodeStarSourceConnection
-            Version: '1'
-          Configuration:
-            BranchName: main
-            ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
-            DetectChanges: 'true'
-            FullRepositoryId: dpp-clearingoffice/temp_test_repo
-            OutputArtifactFormat: CODE_ZIP
-          OutputArtifacts:
-          - Name: SourceArtifactSES
-          Region:
-            Ref: AWS::Region
-          Namespace: SourceVariablesSES
           RunOrder: 1
       - Name: BuildAllRepos
         Actions:
@@ -284,20 +266,6 @@ Resources:
               Ref: CodeBuildDEV
           InputArtifacts:
           - Name: SourceArtifactMain
-          Region:
-            Ref: AWS::Region
-          RunOrder: 1
-        - Name: BuildSES
-          ActionTypeId:
-            Category: Build
-            Owner: AWS
-            Provider: CodeBuild
-            Version: '1'
-          Configuration:
-            ProjectName:
-              Ref: CodeBuildSes
-          InputArtifacts:
-          - Name: SourceArtifactSES
           Region:
             Ref: AWS::Region
           RunOrder: 1
@@ -323,10 +291,10 @@ Resources:
             Provider: CodeStarSourceConnection
             Version: '1'
           Configuration:
-            BranchName: main
+            BranchName: PROD
             ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
             DetectChanges: 'true'
-            FullRepositoryId: dpp-clearingoffice/pipeline_test_repo
+            FullRepositoryId: dpp-clearingoffice/CAST
             OutputArtifactFormat: CODE_ZIP
           OutputArtifacts:
           - Name: SourceArtifact
