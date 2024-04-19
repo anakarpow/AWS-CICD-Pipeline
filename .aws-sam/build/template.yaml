@@ -56,6 +56,7 @@ Resources:
           - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev
           - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-prod
           - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-prod
+          - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev-ses
           Effect: Allow
         - Effect: Allow
           Action:
@@ -178,6 +179,47 @@ Resources:
           Status: DISABLED
           EncryptionDisabled: false
       Visibility: PRIVATE
+  CodeBuildSes:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: dpp-dco-cast-dev-ses
+      Source:
+        BuildSpec: buildspec_dev.yaml
+        InsecureSsl: false
+        Type: CODEPIPELINE
+      Artifacts:
+        EncryptionDisabled: false
+        Name: dpp-dco-cast-to-dev-auto-ses
+        Packaging: NONE
+        Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+        - Name: CODEBUILD_CONFIG_AUTO_DISCOVER
+          Type: PLAINTEXT
+          Value: 'true'
+        Image: public.ecr.aws/sam/build-python3.8:1.52.0-20220610003848
+        ImagePullCredentialsType: SERVICE_ROLE
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+        - CodeBuildRole
+        - Arn
+      TimeoutInMinutes: 60
+      QueuedTimeoutInMinutes: 480
+      EncryptionKey:
+        Fn::Sub: arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3
+      BadgeEnabled: false
+      LogsConfig:
+        CloudWatchLogs:
+          Status: ENABLED
+        S3Logs:
+          Status: DISABLED
+          EncryptionDisabled: false
+      Visibility: PRIVATE
   CodePipelineDEV:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -191,9 +233,9 @@ Resources:
           Fn::Sub: codepipeline-${AWS::Region}-922520304512
         Type: S3
       Stages:
-      - Name: SourceBranches
+      - Name: SourceAllRepos
         Actions:
-        - Name: Source
+        - Name: SourceCastMain
           ActionTypeId:
             Category: Source
             Owner: AWS
@@ -206,10 +248,10 @@ Resources:
             FullRepositoryId: dpp-clearingoffice/pipeline_test_repo
             OutputArtifactFormat: CODE_ZIP
           OutputArtifacts:
-          - Name: SourceArtifact
+          - Name: SourceArtifactMain
           Region:
             Ref: AWS::Region
-          Namespace: SourceVariables
+          Namespace: SourceVariablesMain
           RunOrder: 1
         - Name: SourceSES
           ActionTypeId:
@@ -229,9 +271,9 @@ Resources:
             Ref: AWS::Region
           Namespace: SourceVariablesSES
           RunOrder: 1
-      - Name: BuildDev
+      - Name: BuildAllRepos
         Actions:
-        - Name: BuildDev
+        - Name: BuildMain
           ActionTypeId:
             Category: Build
             Owner: AWS
@@ -241,11 +283,11 @@ Resources:
             ProjectName:
               Ref: CodeBuildDEV
           InputArtifacts:
-          - Name: SourceArtifact
+          - Name: SourceArtifactMain
           Region:
             Ref: AWS::Region
           RunOrder: 1
-        - Name: BuildDEV2
+        - Name: BuildSES
           ActionTypeId:
             Category: Build
             Owner: AWS
@@ -253,7 +295,7 @@ Resources:
             Version: '1'
           Configuration:
             ProjectName:
-              Ref: CodeBuildDEV
+              Ref: CodeBuildSes
           InputArtifacts:
           - Name: SourceArtifactSES
           Region:

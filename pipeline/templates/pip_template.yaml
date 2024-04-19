@@ -61,6 +61,8 @@ Resources:
               - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev
               - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-prod
               - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-prod
+              - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev-ses
+
             Effect: Allow
 
           - Effect: Allow
@@ -184,6 +186,45 @@ Resources:
           EncryptionDisabled: false
       Visibility: "PRIVATE"
 
+
+  CodeBuildSes:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Name: "dpp-dco-cast-dev-ses"
+      Source:
+        BuildSpec: "buildspec_dev.yaml"
+        InsecureSsl: false
+        Type: "CODEPIPELINE"
+      Artifacts:
+        EncryptionDisabled: false
+        Name: "dpp-dco-cast-to-dev-auto-ses"
+        Packaging: "NONE"
+        Type: "CODEPIPELINE"
+      Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
+        Type: "NO_CACHE"
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        EnvironmentVariables:
+          - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
+            Type: "PLAINTEXT"
+            Value: "true"
+        Image: "public.ecr.aws/sam/build-python3.8:1.52.0-20220610003848"
+        ImagePullCredentialsType: "SERVICE_ROLE"
+        PrivilegedMode: false
+        Type: "LINUX_CONTAINER"
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      TimeoutInMinutes: 60
+      QueuedTimeoutInMinutes: 480
+      EncryptionKey: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
+      BadgeEnabled: false
+      LogsConfig:
+        CloudWatchLogs:
+          Status: "ENABLED"
+        S3Logs:
+          Status: "DISABLED"
+          EncryptionDisabled: false
+      Visibility: "PRIVATE"
+
   CodePipelineDEV:
     Type: "AWS::CodePipeline::Pipeline"
     Properties:
@@ -255,7 +296,7 @@ Resources:
                 Provider: "CodeBuild"
                 Version: "1"
               Configuration:
-                ProjectName: !Ref CodeBuildDEV
+                ProjectName: !Ref CodeBuildSes
               InputArtifacts:
                 - Name: "SourceArtifactSES"
               Region: !Ref AWS::Region
