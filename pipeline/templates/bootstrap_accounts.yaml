@@ -150,6 +150,7 @@ Resources:
               - cloudwatch:*
             Resource:
               - !Sub arn:aws:cloudwatch:eu-west-1:${AWS::AccountId}:*:*
+              - "*"
             Effect: Allow
 
           - Action:
