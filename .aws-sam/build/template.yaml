@@ -120,7 +120,7 @@ Resources:
           - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${Prefix}*
           - arn:aws:ec2:eu-west-1:471685057907:vpc/vpc-0517670858bad1b7b
           - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:*
-          - arn:aws:ec2:eu-west-1:471685057907:*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:*
           Effect: Allow
         - Action:
           - ec2:Describe*
