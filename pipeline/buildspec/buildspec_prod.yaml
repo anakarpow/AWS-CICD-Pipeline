@@ -16,6 +16,6 @@ phases:
       - sam build --template template.yaml
   post_build:
     commands:
-      - source scripts/variables.sh
-      - source scripts/assume_role_prod.sh
+      - source pipeline/scripts/variables.sh
+      - source pipeline/scripts/assume_role_prod.sh
       - sam deploy --config-env resources-prod --profile PROD --no-fail-on-empty-changeset
