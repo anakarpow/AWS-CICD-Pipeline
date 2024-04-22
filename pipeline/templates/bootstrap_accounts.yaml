@@ -117,6 +117,7 @@ Resources:
               # lambda layers
               - arn:aws:lambda:eu-west-1:770693421928:layer:Klayers-p38-aws-psycopg2:1
               - arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24
+              - !Sub arn:aws:lambda:eu-west-1:${AWS::AccountId}:function:CAST* # for manual deployment cases
             Effect: Allow
 
           - Action:
@@ -124,7 +125,7 @@ Resources:
             Resource:
               - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${PrefixLowercase}*
               - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:cluster-pg:default.aurora-postgresql13
-
+              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:CAST* # for manual deployment cases
             Effect: Allow
 
           - Action:
