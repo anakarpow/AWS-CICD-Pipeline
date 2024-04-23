@@ -27,13 +27,12 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-
           - Action:
               - codestar-connections:UseConnection
             Resource: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
             Effect: Allow
 
-          - Action: # allos Git to load to S3 bucket 
+          - Action: # allos Git to load to S3 bucket
               - s3:*
             Resource: arn:aws:s3:::codepipeline-eu-west-1-*
             Effect: Allow
@@ -62,6 +61,11 @@ Resources:
               - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev
               - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-prod
               - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-prod
+              - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev-ses
+
+              - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-* # shuld cover all use cases
+              - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-*
+
             Effect: Allow
 
           - Effect: Allow
@@ -84,7 +88,7 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-        # allows to write logs 
+          # allows to write logs
           - Effect: Allow
             Resource:
               - arn:aws:logs:eu-west-1:214364534595:log-group:*
@@ -109,13 +113,12 @@ Resources:
               - arn:aws:iam::936022423514:role/CAST-DeployerRole-prod
             Effect: Allow
 
-
-  CodeBuildDEV:
+  CodeBuildMainDEV:
     Type: "AWS::CodeBuild::Project"
     Properties:
       Name: "dpp-dco-cast-dev"
       Source:
-        BuildSpec: "pipeline/buildspec/buildspec_dev.yaml"
+        BuildSpec: "deployment/buildspec/buildspec_dev.yaml"
         InsecureSsl: false
         Type: "CODEPIPELINE"
       Artifacts:
@@ -131,7 +134,7 @@ Resources:
           - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
             Type: "PLAINTEXT"
             Value: "true"
-        Image: "public.ecr.aws/sam/build-python3.8:1.52.0-20220610003848"
+        Image: public.ecr.aws/sam/build-python3.11:1.115.0-20240411212301
         ImagePullCredentialsType: "SERVICE_ROLE"
         PrivilegedMode: false
         Type: "LINUX_CONTAINER"
@@ -148,17 +151,17 @@ Resources:
           EncryptionDisabled: false
       Visibility: "PRIVATE"
 
-  CodeBuildProd:
+  CodeBuildMainPROD:
     Type: "AWS::CodeBuild::Project"
     Properties:
       Name: "dpp-dco-cast-prod"
       Source:
-        BuildSpec: "pipeline/buildspec/buildspec_prod.yaml"
+        BuildSpec: "deployment/buildspec/buildspec_prod.yaml"
         InsecureSsl: false
         Type: "CODEPIPELINE"
       Artifacts:
         EncryptionDisabled: false
-        Name: "dpp-dco-cast-to-dev-auto"
+        Name: "dpp-dco-cast-to-prod-auto"
         Packaging: "NONE"
         Type: "CODEPIPELINE"
       Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
@@ -169,7 +172,83 @@ Resources:
           - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
             Type: "PLAINTEXT"
             Value: "true"
-        Image: "public.ecr.aws/sam/build-python3.8:1.52.0-20220610003848"
+        Image: public.ecr.aws/sam/build-python3.11:1.115.0-20240411212301
+        ImagePullCredentialsType: "SERVICE_ROLE"
+        PrivilegedMode: false
+        Type: "LINUX_CONTAINER"
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      TimeoutInMinutes: 60
+      QueuedTimeoutInMinutes: 480
+      EncryptionKey: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
+      BadgeEnabled: false
+      LogsConfig:
+        CloudWatchLogs:
+          Status: "ENABLED"
+        S3Logs:
+          Status: "DISABLED"
+          EncryptionDisabled: false
+      Visibility: "PRIVATE"
+
+  CodeBuildSesDEV:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Name: "dpp-dco-cast-dev-ses"
+      Source:
+        BuildSpec: "deployment/buildspec/buildspec_dev.yaml"
+        InsecureSsl: false
+        Type: "CODEPIPELINE"
+      Artifacts:
+        EncryptionDisabled: false
+        Name: "dpp-dco-cast-to-dev-auto-ses"
+        Packaging: "NONE"
+        Type: "CODEPIPELINE"
+      Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
+        Type: "NO_CACHE"
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        EnvironmentVariables:
+          - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
+            Type: "PLAINTEXT"
+            Value: "true"
+        Image: public.ecr.aws/sam/build-python3.11:1.115.0-20240411212301
+        ImagePullCredentialsType: "SERVICE_ROLE"
+        PrivilegedMode: false
+        Type: "LINUX_CONTAINER"
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      TimeoutInMinutes: 60
+      QueuedTimeoutInMinutes: 480
+      EncryptionKey: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
+      BadgeEnabled: false
+      LogsConfig:
+        CloudWatchLogs:
+          Status: "ENABLED"
+        S3Logs:
+          Status: "DISABLED"
+          EncryptionDisabled: false
+      Visibility: "PRIVATE"
+
+  CodeBuildSesPROD:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Name: "dpp-dco-cast-prod-ses"
+      Source:
+        BuildSpec: "deployment/buildspec/buildspec_prod.yaml"
+        InsecureSsl: false
+        Type: "CODEPIPELINE"
+      Artifacts:
+        EncryptionDisabled: false
+        Name: "dpp-dco-cast-to-prod-auto-ses"
+        Packaging: "NONE"
+        Type: "CODEPIPELINE"
+      Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
+        Type: "NO_CACHE"
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        EnvironmentVariables:
+          - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
+            Type: "PLAINTEXT"
+            Value: "true"
+        Image: public.ecr.aws/sam/build-python3.11:1.115.0-20240411212301
         ImagePullCredentialsType: "SERVICE_ROLE"
         PrivilegedMode: false
         Type: "LINUX_CONTAINER"
@@ -195,38 +274,69 @@ Resources:
         Location: !Sub "codepipeline-${AWS::Region}-922520304512"
         Type: "S3"
       Stages:
-        - Name: "Source"
+        - Name: "SourceAllRepos"
           Actions:
-            - Name: "Source"
+            - Name: "SourceCastMain"
               ActionTypeId:
                 Category: "Source"
                 Owner: "AWS"
                 Provider: "CodeStarSourceConnection"
                 Version: "1"
               Configuration:
-                BranchName: "dev"
+                BranchName: "DEV"
                 ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
                 DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/pipeline_test_repo"
+                FullRepositoryId: "dpp-clearingoffice/CAST"
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
-                - Name: "SourceArtifact"
+                - Name: "SourceArtifactMain"
               Region: !Ref AWS::Region
-              Namespace: "SourceVariables"
+              Namespace: "SourceVariablesMain"
               RunOrder: 1
 
-        - Name: "BuildDev"
+            - Name: "SourceSES"
+              ActionTypeId:
+                Category: "Source"
+                Owner: "AWS"
+                Provider: "CodeStarSourceConnection"
+                Version: "1"
+              Configuration:
+                BranchName: "main"
+                ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
+                DetectChanges: "true"
+                FullRepositoryId: "dpp-clearingoffice/CAST-email"
+                OutputArtifactFormat: "CODE_ZIP"
+              OutputArtifacts:
+                - Name: "SourceArtifactSES"
+              Region: !Ref AWS::Region
+              Namespace: "SourceVariablesSES"
+              RunOrder: 1
+
+        - Name: "BuildAllRepos"
           Actions:
-            - Name: "BuildDev"
+            - Name: "BuildMain"
               ActionTypeId:
                 Category: "Build"
                 Owner: "AWS"
                 Provider: "CodeBuild"
                 Version: "1"
               Configuration:
-                ProjectName: !Ref CodeBuildDEV
+                ProjectName: !Ref CodeBuildMainDEV
               InputArtifacts:
-                - Name: "SourceArtifact"
+                - Name: "SourceArtifactMain"
+              Region: !Ref AWS::Region
+              RunOrder: 1
+
+            - Name: "BuildSES"
+              ActionTypeId:
+                Category: "Build"
+                Owner: "AWS"
+                Provider: "CodeBuild"
+                Version: "1"
+              Configuration:
+                ProjectName: !Ref CodeBuildSesDEV
+              InputArtifacts:
+                - Name: "SourceArtifactSES"
               Region: !Ref AWS::Region
               RunOrder: 1
 
@@ -240,6 +350,7 @@ Resources:
         Type: "S3"
       Stages:
         - Name: "Source"
+
           Actions:
             - Name: "Source"
               ActionTypeId:
@@ -248,17 +359,36 @@ Resources:
                 Provider: "CodeStarSourceConnection"
                 Version: "1"
               Configuration:
-                BranchName: "main" # later test for different branches
+                BranchName: "PROD" # later test for different branches
                 ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
                 DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/pipeline_test_repo"
+                FullRepositoryId: "dpp-clearingoffice/CAST"
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
                 - Name: "SourceArtifact"
               Region: !Ref AWS::Region
               Namespace: "SourceVariables"
               RunOrder: 1
+
+            - Name: "SourceSES"
+              ActionTypeId:
+                Category: "Source"
+                Owner: "AWS"
+                Provider: "CodeStarSourceConnection"
+                Version: "1"
+              Configuration:
+                BranchName: "prod"
+                ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
+                DetectChanges: "true"
+                FullRepositoryId: "dpp-clearingoffice/CAST-email"
+                OutputArtifactFormat: "CODE_ZIP"
+              OutputArtifacts:
+                - Name: "SourceArtifactSES"
+              Region: !Ref AWS::Region
+              Namespace: "SourceVariablesSES"
+              RunOrder: 1
         - Name: "BuildProd"
+
           Actions:
             - Name: "BuildProd"
               ActionTypeId:
@@ -267,8 +397,21 @@ Resources:
                 Provider: "CodeBuild"
                 Version: "1"
               Configuration:
-                ProjectName: !Ref CodeBuildProd
+                ProjectName: !Ref CodeBuildMainPROD
               InputArtifacts:
                 - Name: "SourceArtifact"
+              Region: !Ref AWS::Region
+              RunOrder: 1
+
+            - Name: "BuildSES"
+              ActionTypeId:
+                Category: "Build"
+                Owner: "AWS"
+                Provider: "CodeBuild"
+                Version: "1"
+              Configuration:
+                ProjectName: !Ref CodeBuildSesPROD
+              InputArtifacts:
+                - Name: "SourceArtifactSES"
               Region: !Ref AWS::Region
               RunOrder: 1

@@ -46,10 +46,11 @@ cf_client = boto3.client('cloudformation', region_name='eu-west-1')
 
 # Specify the prefix for CloudFormation stack names
 # Replace 'your_stack_prefix' with the desired prefix
-stack_prefix = 'DEV-CAST'
+stack_prefix = 'SC-'
 
 # List CloudFormation stacks with the specified prefix
 stacks_with_prefix = list_stacks_with_prefix(cf_client, stack_prefix)
+print(stacks_with_prefix)
 delete_stacks(cf_client, stacks_with_prefix)
 
 # # Print the list of stacks
