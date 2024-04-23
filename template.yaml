@@ -535,35 +535,6 @@ Resources:
           CidrIp: 0.0.0.0/0
           Description: allows Lambda connections to other services
 
-  # CASTKmsInterfaceEndpoint:
-  #   Type: "AWS::EC2::VPCEndpoint"
-  #   Metadata:
-  #     Comment: Endpoint to KMS service
-  #   Properties:
-  #     VpcEndpointType: Interface
-  #     ServiceName: !Sub "com.amazonaws.${AWS::Region}.kms"
-  #     VpcId: !Ref VPCId
-  #     SubnetIds:
-  #       - !Ref Subnet1
-  #       - !Ref Subnet2
-  #     SecurityGroupIds:
-  #       - !Ref CASTLambdasSG
-  #       - !Ref CASTDatabaseSG
-
-  # CASTSecretsManInterfaceEndpoint:
-  #   Type: "AWS::EC2::VPCEndpoint"
-  #   Metadata:
-  #     Comment: Endpoint to Secrets Manager Service
-  #   Properties:
-  #     VpcEndpointType: Interface
-  #     ServiceName: !Sub "com.amazonaws.${AWS::Region}.secretsmanager"
-  #     VpcId: !Ref VPCId
-  #     SubnetIds:
-  #       - !Ref Subnet1
-  #       - !Ref Subnet2
-  #     SecurityGroupIds:
-  #       - !Ref CASTLambdasSG
-  #       - !Ref CASTDatabaseSG
 
   #################################################
   #############       DB         ###############
@@ -575,7 +546,6 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       Name: !Sub ${Prefix}secret${StackId}
-
       Description: AWS RDS admin credentials
       GenerateSecretString:
         SecretStringTemplate: '{"username": "postgres"}'
