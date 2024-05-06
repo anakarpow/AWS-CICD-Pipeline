@@ -362,7 +362,7 @@ Resources:
                 BranchName: "PROD" # later test for different branches
                 ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
                 DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/CAST"
+                FullRepositoryId: "dpp-clearingoffice/CAST-main"
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
                 - Name: "SourceArtifact"
