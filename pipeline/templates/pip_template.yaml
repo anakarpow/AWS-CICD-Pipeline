@@ -134,7 +134,7 @@ Resources:
           - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
             Type: "PLAINTEXT"
             Value: "true"
-        Image: public.ecr.aws/sam/build-python3.11:1.115.0-20240411212301
+        Image: public.ecr.aws/amazonlinux/amazonlinux:2023
         ImagePullCredentialsType: "SERVICE_ROLE"
         PrivilegedMode: false
         Type: "LINUX_CONTAINER"
@@ -172,7 +172,7 @@ Resources:
           - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
             Type: "PLAINTEXT"
             Value: "true"
-        Image: public.ecr.aws/sam/build-python3.11:1.115.0-20240411212301
+        Image: public.ecr.aws/amazonlinux/amazonlinux:2023
         ImagePullCredentialsType: "SERVICE_ROLE"
         PrivilegedMode: false
         Type: "LINUX_CONTAINER"
@@ -210,7 +210,7 @@ Resources:
           - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
             Type: "PLAINTEXT"
             Value: "true"
-        Image: public.ecr.aws/sam/build-python3.11:1.115.0-20240411212301
+        Image: public.ecr.aws/amazonlinux/amazonlinux:2023
         ImagePullCredentialsType: "SERVICE_ROLE"
         PrivilegedMode: false
         Type: "LINUX_CONTAINER"
@@ -248,7 +248,7 @@ Resources:
           - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
             Type: "PLAINTEXT"
             Value: "true"
-        Image: public.ecr.aws/sam/build-python3.11:1.115.0-20240411212301
+        Image: public.ecr.aws/amazonlinux/amazonlinux:2023
         ImagePullCredentialsType: "SERVICE_ROLE"
         PrivilegedMode: false
         Type: "LINUX_CONTAINER"
