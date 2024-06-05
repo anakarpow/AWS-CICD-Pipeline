@@ -1,427 +1,155 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cross account Pipeline for CAST
+Description: deploys resources for cross account pipeline in target accounts
 Globals:
   Function:
     Timeout: 300
 Parameters:
+  Env:
+    Description: Environment type.
+    Type: String
+    AllowedValues:
+    - prod
+    - dev
+    - int
+    ConstraintDescription: must specify prod, dev, or int.
   Prefix:
-    Description: project prefix
+    Description: prject prefix
     Type: String
     Default: CAST-
+  PrefixLowercase:
+    Description: prject prefix
+    Type: String
+    Default: cast-
 Resources:
-  PipelineRole:
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketName:
+        Fn::Sub: ${PrefixLowercase}artifact-bucket-${Env}
+  DeployerRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: NewPipelineTestRoleAuto
-      AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codepipeline.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
-  PipelineTempPolicy:
+      RoleName:
+        Fn::Sub: ${Prefix}DeployerRole-${Env}
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            AWS: arn:aws:iam::214364534595:role/codebuild-service-role-auto
+          Action:
+          - sts:AssumeRole
+  AccessArtifactBucket:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: PipelineTemp
       Roles:
-      - Ref: PipelineRole
+      - Ref: DeployerRole
+      PolicyName:
+        Fn::Sub: ${Prefix}AccessArtifactBucket-${Env}
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
         - Action:
-          - codestar-connections:UseConnection
-          Resource: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
+          - s3:GetObject*
+          - s3:GetBucket*
+          - s3:GetEncryptionConfiguration
+          - s3:List*
+          - s3:DeleteObject*
+          - s3:PutObject*
+          - s3:Abort*
+          Resource:
+          - Fn::Sub: arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}
+          - Fn::Sub: arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}/*
+          - arn:aws:s3:::cost-reporting-vw
+          - arn:aws:s3:::cost-reporting-vw/*
+          - arn:aws:s3:::cast-deployment
+          - arn:aws:s3:::cast-deployment/*
           Effect: Allow
+        - Action:
+          - kms:Decrypt
+          - kms:DescribeKey
+          - kms:Encrypt
+          - kms:ReEncrypt*
+          - kms:GenerateDataKey*
+          Resource:
+          - Fn::Sub: arn:aws:kms:eu-west-1:${AWS::AccountId}:key/AWS_MANAGED_KEY
+          Effect: Allow
+  CreateResourcesPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles:
+      - Ref: DeployerRole
+      PolicyName:
+        Fn::Sub: ${Prefix}CreateResourcesPolicy-${Env}
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
         - Action:
           - s3:*
-          Resource: arn:aws:s3:::codepipeline-eu-west-1-*
+          Resource:
+          - Fn::Sub: arn:aws:s3:::${PrefixLowercase}input-${Env}*
+          - Fn::Sub: arn:aws:s3:::${PrefixLowercase}output-${Env}*
+          - Fn::Sub: arn:aws:s3:::${PrefixLowercase}test-${Env}*
           Effect: Allow
         - Action:
-          - cloudformation:CreateStack
-          - cloudformation:DeleteStack
-          - cloudformation:DescribeStacks
-          - cloudformation:UpdateStack
-          - cloudformation:CreateChangeSet
-          - cloudformation:DeleteChangeSet
-          - cloudformation:DescribeChangeSet
-          - cloudformation:ExecuteChangeSet
-          - cloudformation:SetStackPolicy
-          - cloudformation:ValidateTemplate
+          - iam:*
           Resource:
-            Fn::Sub: arn:aws:cloudformation:eu-west-1:214364534595:stack/${Prefix}*
+          - Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/${Prefix}*
+          - Fn::Sub: arn:aws:iam::${AWS::AccountId}:policy/${Prefix}*
+          - arn:aws:iam::471685057907:role/vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW
           Effect: Allow
         - Action:
-          - codebuild:BatchGetBuilds
-          - codebuild:StartBuild
-          - codebuild:BatchGetBuildBatches
-          - codebuild:StartBuildBatch
+          - lambda:*
           Resource:
-          - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-dev
-          - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev
-          - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-prod
-          - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-prod
-          - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev-ses
-          - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-*
-          - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-*
+          - Fn::Sub: arn:aws:lambda:eu-west-1:${AWS::AccountId}:function:${Prefix}*
+          - arn:aws:lambda:eu-west-1:770693421928:layer:Klayers-p38-aws-psycopg2:1
+          - arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24
+          - Fn::Sub: arn:aws:lambda:eu-west-1:${AWS::AccountId}:function:*
           Effect: Allow
-        - Effect: Allow
-          Action:
-          - cloudformation:ValidateTemplate
-          Resource: '*'
-  CodeBuildRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: codebuild-service-role-auto
-      AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codebuild.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
-  CodeBuildTempPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: CodeBuildTemp
-      Roles:
-      - Ref: CodeBuildRole
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
+        - Action:
+          - rds:*
           Resource:
-          - arn:aws:logs:eu-west-1:214364534595:log-group:*
-          Action:
-          - logs:CreateLogGroup
-          - logs:CreateLogStream
-          - logs:PutLogEvents
-        - Effect: Allow
-          Resource:
-          - arn:aws:s3:::codepipeline-eu-west-1-*
-          Action:
-          - s3:PutObject
-          - s3:GetObject
-          - s3:GetObjectVersion
-          - s3:GetBucketAcl
-          - s3:GetBucketLocation
-        - Action: sts:AssumeRole
-          Resource:
-          - arn:aws:iam::471685057907:role/CAST-DeployerRole-dev
-          - arn:aws:iam::936022423514:role/CAST-DeployerRole-prod
+          - Fn::Sub: arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${PrefixLowercase}*
+          - Fn::Sub: arn:aws:rds:eu-west-1:${AWS::AccountId}:cluster-pg:default.aurora-postgresql13
+          - Fn::Sub: arn:aws:rds:eu-west-1:${AWS::AccountId}:*:CAST*
           Effect: Allow
-  CodeBuildMainDEV:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Name: dpp-dco-cast-dev
-      Source:
-        BuildSpec: deployment/buildspec/buildspec_dev.yaml
-        InsecureSsl: false
-        Type: CODEPIPELINE
-      Artifacts:
-        EncryptionDisabled: false
-        Name: dpp-dco-cast-to-dev-auto
-        Packaging: NONE
-        Type: CODEPIPELINE
-      Cache:
-        Type: NO_CACHE
-      Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
-        EnvironmentVariables:
-        - Name: CODEBUILD_CONFIG_AUTO_DISCOVER
-          Type: PLAINTEXT
-          Value: 'true'
-        Image: public.ecr.aws/amazonlinux/amazonlinux:2023
-        ImagePullCredentialsType: SERVICE_ROLE
-        PrivilegedMode: false
-        Type: LINUX_CONTAINER
-      ServiceRole:
-        Fn::GetAtt:
-        - CodeBuildRole
-        - Arn
-      TimeoutInMinutes: 60
-      QueuedTimeoutInMinutes: 480
-      EncryptionKey:
-        Fn::Sub: arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3
-      BadgeEnabled: false
-      LogsConfig:
-        CloudWatchLogs:
-          Status: ENABLED
-        S3Logs:
-          Status: DISABLED
-          EncryptionDisabled: false
-      Visibility: PRIVATE
-  CodeBuildMainPROD:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Name: dpp-dco-cast-prod
-      Source:
-        BuildSpec: deployment/buildspec/buildspec_prod.yaml
-        InsecureSsl: false
-        Type: CODEPIPELINE
-      Artifacts:
-        EncryptionDisabled: false
-        Name: dpp-dco-cast-to-prod-auto
-        Packaging: NONE
-        Type: CODEPIPELINE
-      Cache:
-        Type: NO_CACHE
-      Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
-        EnvironmentVariables:
-        - Name: CODEBUILD_CONFIG_AUTO_DISCOVER
-          Type: PLAINTEXT
-          Value: 'true'
-        Image: public.ecr.aws/amazonlinux/amazonlinux:2023
-        ImagePullCredentialsType: SERVICE_ROLE
-        PrivilegedMode: false
-        Type: LINUX_CONTAINER
-      ServiceRole:
-        Fn::GetAtt:
-        - CodeBuildRole
-        - Arn
-      TimeoutInMinutes: 60
-      QueuedTimeoutInMinutes: 480
-      EncryptionKey:
-        Fn::Sub: arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3
-      BadgeEnabled: false
-      LogsConfig:
-        CloudWatchLogs:
-          Status: ENABLED
-        S3Logs:
-          Status: DISABLED
-          EncryptionDisabled: false
-      Visibility: PRIVATE
-  CodeBuildSesDEV:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Name: dpp-dco-cast-dev-ses
-      Source:
-        BuildSpec: deployment/buildspec/buildspec_dev.yaml
-        InsecureSsl: false
-        Type: CODEPIPELINE
-      Artifacts:
-        EncryptionDisabled: false
-        Name: dpp-dco-cast-to-dev-auto-ses
-        Packaging: NONE
-        Type: CODEPIPELINE
-      Cache:
-        Type: NO_CACHE
-      Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
-        EnvironmentVariables:
-        - Name: CODEBUILD_CONFIG_AUTO_DISCOVER
-          Type: PLAINTEXT
-          Value: 'true'
-        Image: public.ecr.aws/amazonlinux/amazonlinux:2023
-        ImagePullCredentialsType: SERVICE_ROLE
-        PrivilegedMode: false
-        Type: LINUX_CONTAINER
-      ServiceRole:
-        Fn::GetAtt:
-        - CodeBuildRole
-        - Arn
-      TimeoutInMinutes: 60
-      QueuedTimeoutInMinutes: 480
-      EncryptionKey:
-        Fn::Sub: arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3
-      BadgeEnabled: false
-      LogsConfig:
-        CloudWatchLogs:
-          Status: ENABLED
-        S3Logs:
-          Status: DISABLED
-          EncryptionDisabled: false
-      Visibility: PRIVATE
-  CodeBuildSesPROD:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Name: dpp-dco-cast-prod-ses
-      Source:
-        BuildSpec: deployment/buildspec/buildspec_prod.yaml
-        InsecureSsl: false
-        Type: CODEPIPELINE
-      Artifacts:
-        EncryptionDisabled: false
-        Name: dpp-dco-cast-to-prod-auto-ses
-        Packaging: NONE
-        Type: CODEPIPELINE
-      Cache:
-        Type: NO_CACHE
-      Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
-        EnvironmentVariables:
-        - Name: CODEBUILD_CONFIG_AUTO_DISCOVER
-          Type: PLAINTEXT
-          Value: 'true'
-        Image: public.ecr.aws/amazonlinux/amazonlinux:2023
-        ImagePullCredentialsType: SERVICE_ROLE
-        PrivilegedMode: false
-        Type: LINUX_CONTAINER
-      ServiceRole:
-        Fn::GetAtt:
-        - CodeBuildRole
-        - Arn
-      TimeoutInMinutes: 60
-      QueuedTimeoutInMinutes: 480
-      EncryptionKey:
-        Fn::Sub: arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3
-      BadgeEnabled: false
-      LogsConfig:
-        CloudWatchLogs:
-          Status: ENABLED
-        S3Logs:
-          Status: DISABLED
-          EncryptionDisabled: false
-      Visibility: PRIVATE
-  CodePipelineDEV:
-    Type: AWS::CodePipeline::Pipeline
-    Properties:
-      Name: CAST-Pipeline-dev
-      RoleArn:
-        Fn::GetAtt:
-        - PipelineRole
-        - Arn
-      ArtifactStore:
-        Location:
-          Fn::Sub: codepipeline-${AWS::Region}-922520304512
-        Type: S3
-      Stages:
-      - Name: SourceAllRepos
-        Actions:
-        - Name: SourceCastMain
-          ActionTypeId:
-            Category: Source
-            Owner: AWS
-            Provider: CodeStarSourceConnection
-            Version: '1'
-          Configuration:
-            BranchName: DEV
-            ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
-            DetectChanges: 'true'
-            FullRepositoryId: dpp-clearingoffice/CAST-main
-            OutputArtifactFormat: CODE_ZIP
-          OutputArtifacts:
-          - Name: SourceArtifactMain
-          Region:
-            Ref: AWS::Region
-          Namespace: SourceVariablesMain
-          RunOrder: 1
-        - Name: SourceSES
-          ActionTypeId:
-            Category: Source
-            Owner: AWS
-            Provider: CodeStarSourceConnection
-            Version: '1'
-          Configuration:
-            BranchName: main
-            ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
-            DetectChanges: 'true'
-            FullRepositoryId: dpp-clearingoffice/CAST-email
-            OutputArtifactFormat: CODE_ZIP
-          OutputArtifacts:
-          - Name: SourceArtifactSES
-          Region:
-            Ref: AWS::Region
-          Namespace: SourceVariablesSES
-          RunOrder: 1
-      - Name: BuildAllRepos
-        Actions:
-        - Name: BuildMain
-          ActionTypeId:
-            Category: Build
-            Owner: AWS
-            Provider: CodeBuild
-            Version: '1'
-          Configuration:
-            ProjectName:
-              Ref: CodeBuildMainDEV
-          InputArtifacts:
-          - Name: SourceArtifactMain
-          Region:
-            Ref: AWS::Region
-          RunOrder: 1
-        - Name: BuildSES
-          ActionTypeId:
-            Category: Build
-            Owner: AWS
-            Provider: CodeBuild
-            Version: '1'
-          Configuration:
-            ProjectName:
-              Ref: CodeBuildSesDEV
-          InputArtifacts:
-          - Name: SourceArtifactSES
-          Region:
-            Ref: AWS::Region
-          RunOrder: 1
-  CodePipelinePROD:
-    Type: AWS::CodePipeline::Pipeline
-    Properties:
-      Name: CAST-Pipeline-prod
-      RoleArn:
-        Fn::GetAtt:
-        - PipelineRole
-        - Arn
-      ArtifactStore:
-        Location:
-          Fn::Sub: codepipeline-${AWS::Region}-922520304512
-        Type: S3
-      Stages:
-      - Name: Source
-        Actions:
-        - Name: Source
-          ActionTypeId:
-            Category: Source
-            Owner: AWS
-            Provider: CodeStarSourceConnection
-            Version: '1'
-          Configuration:
-            BranchName: PROD
-            ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
-            DetectChanges: 'true'
-            FullRepositoryId: dpp-clearingoffice/CAST-main
-            OutputArtifactFormat: CODE_ZIP
-          OutputArtifacts:
-          - Name: SourceArtifact
-          Region:
-            Ref: AWS::Region
-          Namespace: SourceVariables
-          RunOrder: 1
-        - Name: SourceSES
-          ActionTypeId:
-            Category: Source
-            Owner: AWS
-            Provider: CodeStarSourceConnection
-            Version: '1'
-          Configuration:
-            BranchName: prod
-            ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
-            DetectChanges: 'true'
-            FullRepositoryId: dpp-clearingoffice/CAST-email
-            OutputArtifactFormat: CODE_ZIP
-          OutputArtifacts:
-          - Name: SourceArtifactSES
-          Region:
-            Ref: AWS::Region
-          Namespace: SourceVariablesSES
-          RunOrder: 1
-      - Name: BuildProd
-        Actions:
-        - Name: BuildProd
-          ActionTypeId:
-            Category: Build
-            Owner: AWS
-            Provider: CodeBuild
-            Version: '1'
-          Configuration:
-            ProjectName:
-              Ref: CodeBuildMainPROD
-          InputArtifacts:
-          - Name: SourceArtifact
-          Region:
-            Ref: AWS::Region
-          RunOrder: 1
-        - Name: BuildSES
-          ActionTypeId:
-            Category: Build
-            Owner: AWS
-            Provider: CodeBuild
-            Version: '1'
-          Configuration:
-            ProjectName:
-              Ref: CodeBuildSesPROD
-          InputArtifacts:
-          - Name: SourceArtifactSES
-          Region:
-            Ref: AWS::Region
-          RunOrder: 1
+        - Action:
+          - ec2:*
+          Resource:
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:${PrefixLowercase}*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${PrefixLowercase}*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:${Prefix}*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${Prefix}*
+          - arn:aws:ec2:eu-west-1:471685057907:vpc/vpc-0517670858bad1b7b
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:*
+          - Fn::Sub: arn:aws:ec2:eu-west-1:${AWS::AccountId}:*
+          Effect: Allow
+        - Action:
+          - ec2:Describe*
+          Resource:
+          - '*'
+          Effect: Allow
+        - Action:
+          - secretsmanager:*
+          Resource:
+          - Fn::Sub: arn:aws:secretsmanager:eu-west-1:${AWS::AccountId}:*
+          Effect: Allow
+        - Action:
+          - cloudwatch:*
+          Resource:
+          - Fn::Sub: arn:aws:cloudwatch:eu-west-1:${AWS::AccountId}:*:*
+          - '*'
+          Effect: Allow
+        - Action:
+          - iam:getRolePolicy
+          Resource:
+          - Fn::Sub: arn:aws:iam::${AWS::AccountId}:*
+          Effect: Allow
+        - Action:
+          - secretsmanager:GetRandomPassword
+          Resource:
+          - '*'
+          Effect: Allow
