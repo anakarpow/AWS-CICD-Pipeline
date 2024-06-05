@@ -39,8 +39,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS:
-                - arn:aws:iam::214364534595:role/codebuild-service-role-auto
+              AWS: arn:aws:iam::214364534595:role/codebuild-service-role-auto
             Action:
               - sts:AssumeRole
 
