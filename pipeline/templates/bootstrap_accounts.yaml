@@ -63,11 +63,10 @@ Resources:
             Resource:
               - !Sub arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}
               - !Sub arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}/*
-              - arn:aws:s3:::cost-reporting-vw # MAIN DEV bukcet 
-              - arn:aws:s3:::cost-reporting-vw/* 
+              - arn:aws:s3:::cost-reporting-vw # MAIN DEV bukcet
+              - arn:aws:s3:::cost-reporting-vw/*
               - arn:aws:s3:::cast-deployment # MAIN PROD BUCKET
               - arn:aws:s3:::cast-deployment/*
-
 
             Effect: Allow
 
@@ -173,7 +172,8 @@ Resources:
             Effect: Allow
 
           - Action:
-              - events:Describe*
+              - events:*
             Resource:
-              - "arn:aws:events:eu-west-1:471685057907:rule:*"
+              - !Sub arn:aws:events:eu-west-1:${AWS::AccountId}:*:*
+              - "*"
             Effect: Allow
