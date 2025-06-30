@@ -1,6 +1,17 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: "cross-account Pipeline for continuous deployment of an application"
+
+# this stack deploys a single pipeline that deploys resources in two target accounts
+# it creates:
+# - S3 bucket for storing artifacts
+# - IAM role for CodePipeline to deploy resources in target accounts
+# - IAM policies for the role to access the bucket and create resources in target accounts
+# - CodeBuild projects for building and deploying resources in target accounts
+# - CodePipeline pipelines for deploying resources in target accounts
+
+
+
 Globals:
   Function:
     Timeout: 300
@@ -15,6 +26,26 @@ Parameters:
     Description: AccountId of the target account where the pipeline will be deployed
     Type: String
     Default: 1111111111111
+
+  TargetAccountDev:
+    Description: AccountId of the target account for DEV environment
+    Type: String
+    Default: 2111111111112
+
+  TargetAccountProd:
+    Description: AccountId of the target account for PROD environment
+    Type: String
+    Default: 3111111111113 
+
+  TargetRoleDev:
+    Description: Role name to be assumed` of the target account for DEV environment
+    Type: String
+    Default: PIPELINE-DeployerRole-dev  
+  
+  TargetRoleProd:
+    Description: Role name of the target account for PROD environment
+    Type: String
+    Default: PIPELINE-DeployerRole-prod 
 
 Resources:
 # We make sure to create a new role each time we deploy the pipeline
@@ -82,7 +113,7 @@ Resources:
 
   CodeBuildRole:
   # We make sure to create a new role each time we deploy the pipeline
-    # this role is used by CodeBuild to deploy resources in target accounts
+    # this role assumes the DeployerRole in target accounts to deploy resources in target accounts
     Type: "AWS::IAM::Role"
     Properties:
       RoleName: codebuild-service-role-auto
@@ -115,11 +146,12 @@ Resources:
               - s3:GetObjectVersion
               - s3:GetBucketAcl
               - s3:GetBucketLocation
-
+        
+        # permissions to assume roles in target accounts
           - Action: sts:AssumeRole
             Resource:
-              - arn:aws:iam::471685057907:role/PIPELINE-DeployerRole-dev
-              - arn:aws:iam::936022423514:role/PIPELINE-DeployerRole-prod
+              - !Sub arn:aws:iam::${TargetAccountDev}:role/TargetRoleDev
+              - !Sub arn:aws:iam::${TargetAccountProd}:role/TargetRoleProd
             Effect: Allow
 
   CodeBuildMainDEV:
@@ -127,6 +159,9 @@ Resources:
     Properties:
       Name: "pipeline-dev"
       Source:
+      # this is the main project that builds and deploys resources in DEV environment
+        # it uses the buildspec_dev.yaml file to build and deploy resources
+        # it is triggered by the CodePipeline pipeline
         BuildSpec: "deployment/buildspec/buildspec_dev.yaml"
         InsecureSsl: false
         Type: "CODEPIPELINE"
@@ -135,7 +170,7 @@ Resources:
         Name: "pipeline-to-dev-auto"
         Packaging: "NONE"
         Type: "CODEPIPELINE"
-      Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
+      Cache: 
         Type: "NO_CACHE"
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
@@ -173,7 +208,7 @@ Resources:
         Name: "pipeline-to-prod-auto"
         Packaging: "NONE"
         Type: "CODEPIPELINE"
-      Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
+      Cache: 
         Type: "NO_CACHE"
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
@@ -198,229 +233,6 @@ Resources:
           EncryptionDisabled: false
       Visibility: "PRIVATE"
 
-  CodeBuildSesDEV:
-    Type: "AWS::CodeBuild::Project"
-    Properties:
-      Name: "pipeline-dev-ses"
-      Source:
-        BuildSpec: "deployment/buildspec/buildspec_dev.yaml"
-        InsecureSsl: false
-        Type: "CODEPIPELINE"
-      Artifacts:
-        EncryptionDisabled: false
-        Name: "pipeline-to-dev-auto-ses"
-        Packaging: "NONE"
-        Type: "CODEPIPELINE"
-      Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
-        Type: "NO_CACHE"
-      Environment:
-        ComputeType: "BUILD_GENERAL1_SMALL"
-        EnvironmentVariables:
-          - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
-            Type: "PLAINTEXT"
-            Value: "true"
-        Image: public.ecr.aws/amazonlinux/amazonlinux:2023
-        ImagePullCredentialsType: "SERVICE_ROLE"
-        PrivilegedMode: false
-        Type: "LINUX_CONTAINER"
-      ServiceRole: !GetAtt CodeBuildRole.Arn
-      TimeoutInMinutes: 60
-      QueuedTimeoutInMinutes: 480
-      EncryptionKey: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
-      BadgeEnabled: false
-      LogsConfig:
-        CloudWatchLogs:
-          Status: "ENABLED"
-        S3Logs:
-          Status: "DISABLED"
-          EncryptionDisabled: false
-      Visibility: "PRIVATE"
-
-  CodeBuildSesPROD:
-    Type: "AWS::CodeBuild::Project"
-    Properties:
-      Name: "pipeline-prod-ses"
-      Source:
-        BuildSpec: "deployment/buildspec/buildspec_prod.yaml"
-        InsecureSsl: false
-        Type: "CODEPIPELINE"
-      Artifacts:
-        EncryptionDisabled: false
-        Name: "pipeline-to-prod-auto-ses"
-        Packaging: "NONE"
-        Type: "CODEPIPELINE"
-      Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
-        Type: "NO_CACHE"
-      Environment:
-        ComputeType: "BUILD_GENERAL1_SMALL"
-        EnvironmentVariables:
-          - Name: "CODEBUILD_CONFIG_AUTO_DISCOVER"
-            Type: "PLAINTEXT"
-            Value: "true"
-        Image: public.ecr.aws/amazonlinux/amazonlinux:2023
-        ImagePullCredentialsType: "SERVICE_ROLE"
-        PrivilegedMode: false
-        Type: "LINUX_CONTAINER"
-      ServiceRole: !GetAtt CodeBuildRole.Arn
-      TimeoutInMinutes: 60
-      QueuedTimeoutInMinutes: 480
-      EncryptionKey: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
-      BadgeEnabled: false
-      LogsConfig:
-        CloudWatchLogs:
-          Status: "ENABLED"
-        S3Logs:
-          Status: "DISABLED"
-          EncryptionDisabled: false
-      Visibility: "PRIVATE"
-
-  CodePipelineDEV:
-    Type: "AWS::CodePipeline::Pipeline"
-    Properties:
-      Name: PIPELINE-Pipeline-dev
-      RoleArn: !GetAtt PipelineRole.Arn
-      ArtifactStore:
-        Location: !Sub "codepipeline-${AWS::Region}-922520304512"
-        Type: "S3"
-      Stages:
-        - Name: "SourceAllRepos"
-          Actions:
-            - Name: "SourcePIPELINEMain"
-              ActionTypeId:
-                Category: "Source"
-                Owner: "AWS"
-                Provider: "CodeStarSourceConnection"
-                Version: "1"
-              Configuration:
-                BranchName: "DEV"
-                ConnectionArn: arn:aws:codestar-connections:eu-west-1:${AccountId}:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
-                DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/PIPELINE-main"
-                OutputArtifactFormat: "CODE_ZIP"
-              OutputArtifacts:
-                - Name: "SourceArtifactMain"
-              Region: !Ref AWS::Region
-              Namespace: "SourceVariablesMain"
-              RunOrder: 1
-
-            - Name: "SourceSES"
-              ActionTypeId:
-                Category: "Source"
-                Owner: "AWS"
-                Provider: "CodeStarSourceConnection"
-                Version: "1"
-              Configuration:
-                BranchName: "DEV"
-                ConnectionArn: arn:aws:codestar-connections:eu-west-1:${AccountId}:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
-                DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/PIPELINE-email"
-                OutputArtifactFormat: "CODE_ZIP"
-              OutputArtifacts:
-                - Name: "SourceArtifactSES"
-              Region: !Ref AWS::Region
-              Namespace: "SourceVariablesSES"
-              RunOrder: 1
-
-        - Name: "BuildAllRepos"
-          Actions:
-            - Name: "BuildMain"
-              ActionTypeId:
-                Category: "Build"
-                Owner: "AWS"
-                Provider: "CodeBuild"
-                Version: "1"
-              Configuration:
-                ProjectName: !Ref CodeBuildMainDEV
-              InputArtifacts:
-                - Name: "SourceArtifactMain"
-              Region: !Ref AWS::Region
-              RunOrder: 1
-
-            - Name: "BuildSES"
-              ActionTypeId:
-                Category: "Build"
-                Owner: "AWS"
-                Provider: "CodeBuild"
-                Version: "1"
-              Configuration:
-                ProjectName: !Ref CodeBuildSesDEV
-              InputArtifacts:
-                - Name: "SourceArtifactSES"
-              Region: !Ref AWS::Region
-              RunOrder: 1
-
-  CodePipelinePROD:
-    Type: "AWS::CodePipeline::Pipeline"
-    Properties:
-      Name: PIPELINE-Pipeline-prod
-      RoleArn: !GetAtt PipelineRole.Arn
-      ArtifactStore:
-        Location: !Sub "codepipeline-${AWS::Region}-922520304512"
-        Type: "S3"
-      Stages:
-        - Name: "Source"
-
-          Actions:
-            - Name: "Source"
-              ActionTypeId:
-                Category: "Source"
-                Owner: "AWS"
-                Provider: "CodeStarSourceConnection"
-                Version: "1"
-              Configuration:
-                BranchName: "PROD" # later test for different branches
-                ConnectionArn: arn:aws:codestar-connections:eu-west-1:${AccountId}:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
-                DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/PIPELINE-main"
-                OutputArtifactFormat: "CODE_ZIP"
-              OutputArtifacts:
-                - Name: "SourceArtifact"
-              Region: !Ref AWS::Region
-              Namespace: "SourceVariables"
-              RunOrder: 1
-
-            - Name: "SourceSES"
-              ActionTypeId:
-                Category: "Source"
-                Owner: "AWS"
-                Provider: "CodeStarSourceConnection"
-                Version: "1"
-              Configuration:
-                BranchName: "PROD"
-                ConnectionArn: arn:aws:codestar-connections:eu-west-1:${AccountId}:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
-                DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/PIPELINE-email"
-                OutputArtifactFormat: "CODE_ZIP"
-              OutputArtifacts:
-                - Name: "SourceArtifactSES"
-              Region: !Ref AWS::Region
-              Namespace: "SourceVariablesSES"
-              RunOrder: 1
-        - Name: "BuildProd"
-
-          Actions:
-            - Name: "BuildProd"
-              ActionTypeId:
-                Category: "Build"
-                Owner: "AWS"
-                Provider: "CodeBuild"
-                Version: "1"
-              Configuration:
-                ProjectName: !Ref CodeBuildMainPROD
-              InputArtifacts:
-                - Name: "SourceArtifact"
-              Region: !Ref AWS::Region
-              RunOrder: 1
-
-            - Name: "BuildSES"
-              ActionTypeId:
-                Category: "Build"
-                Owner: "AWS"
-                Provider: "CodeBuild"
-                Version: "1"
-              Configuration:
-                ProjectName: !Ref CodeBuildSesPROD
-              InputArtifacts:
-                - Name: "SourceArtifactSES"
-              Region: !Ref AWS::Region
-              RunOrder: 1
+# adding other CodeBuild projects we could use the pipeline to deploy other repositories
+# this is useful for deploying different components of the same application using the same pipeline
+ 

@@ -10,6 +10,7 @@ Description: deploys bootstrap resources for cross-account pipeline in target ac
 # - IAM policies for the role to access the bucket and create resources in target accounts
 
 # it uses the assume-role method to safely manage infrastructure in target accounts
+        # it uses the CodeStarSourceConnection to connect to the Git repository
 
 Globals:
   Function:
@@ -31,7 +32,7 @@ Parameters:
   PrefixLowercase:
     Description: project prefix
     Type: String
-    Default: ${Prefix}
+    Default: portfolio-
 
   AccountId:
     Description: AccountId of the target account where the pipeline will be deployed
