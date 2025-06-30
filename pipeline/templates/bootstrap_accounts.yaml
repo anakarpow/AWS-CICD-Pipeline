@@ -1,6 +1,16 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: deploys resources for cross-account pipeline in target accounts
+Description: deploys bootstrap resources for cross-account pipeline in target accounts. 
+  
+# Each target account should have this stack deployed before pipeline stack.
+#
+# This template creates:
+# - S3 bucket for storing artifacts
+# - IAM role for CodeBuild to deploy resources in target accounts
+# - IAM policies for the role to access the bucket and create resources in target accounts
+
+# it uses the assume-role method to safely manage infrastructure in target accounts
+
 Globals:
   Function:
     Timeout: 300
@@ -23,17 +33,23 @@ Parameters:
     Type: String
     Default: ${Prefix}
 
+  AccountId:
+    Description: AccountId of the target account where the pipeline will be deployed
+    Type: String
+    Default: 1111111111111
+
 Resources:
 # our bucket for storing artifacts
   ArtifactBucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private
-      BucketName: !Sub ${PrefixLowercase}artifact-bucket-${Env}
+      BucketName: !Sub ${PrefixLowercase}-artifact-bucket-${Env}
 
   DeployerRole:
-  # this role is used by CodeBuild to deploy resources in target accounts
-  # it needs to be created in each target account
+  # this role is assumed by CodeBuild service role of the pipeline account
+  # It used by CodeBuild to deploy resources in target accounts
+  # it has permissions to access the artifact bucket and create resources in target accounts
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub ${Prefix}DeployerRole-${Env}
@@ -43,12 +59,11 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: arn:aws:iam::214364534595:role/codebuild-service-role-auto
+              AWS: arn:aws:iam::${AccountId}:role/codebuild-service-role-auto
             Action:
               - sts:AssumeRole
 
   AccessArtifactBucket:
-  #
     Type: AWS::IAM::Policy
     Properties:
       Roles:
@@ -68,13 +83,9 @@ Resources:
             Resource:
               - !Sub arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}
               - !Sub arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}/*
-              - arn:aws:s3::dev-target-account # MAIN DEV bukcet
-              - arn:aws:s3:::dev-target-account/*
-              - arn:aws:s3::prod-target-account # MAIN PROD bukcet
-              - arn:aws:s3:::prod-target-account/*
 
             Effect: Allow
-  # Here we allow DeployerRole to use a specific KMS key for encryption/decryption
+          # Here we allow DeployerRole to use a specific KMS key for encryption/decryption
           - Action:
               - kms:Decrypt
               - kms:DescribeKey
@@ -85,8 +96,6 @@ Resources:
               - !Sub arn:aws:kms:eu-west-1:${AWS::AccountId}:key/AWS_MANAGED_KEY
             Effect: Allow
 
-  # probably need to be udated according to depoyed resources
-  # also restict using Prefix ?
   CreateResourcesPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -96,12 +105,13 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
+        # here we allow the DeployerRole to create policies needed by the final application
+        # for example, to access S3 buckets, Lambda functions, RDS instances, etc.
           - Action:
               - s3:*
             Resource:
               - !Sub arn:aws:s3:::${PrefixLowercase}input-${Env}*
               - !Sub arn:aws:s3:::${PrefixLowercase}output-${Env}*
-              - !Sub arn:aws:s3:::${PrefixLowercase}test-${Env}*
             Effect: Allow
 
           - Action:
@@ -116,67 +126,6 @@ Resources:
             Resource:
               - !Sub arn:aws:lambda:eu-west-1:${AWS::AccountId}:function:${Prefix}*
               - !Sub arn:aws:lambda:eu-west-1:${AWS::AccountId}:layer:*
-              # lambda layers
-              #
-              - arn:aws:lambda:eu-west-1:770693421928:layer:Klayers-p38-aws-psycopg2:1
+              # allow using specific layers if needed
               - arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24
-              - !Sub arn:aws:lambda:eu-west-1:${AWS::AccountId}:function:* # for manual deployment cases
-            Effect: Allow
-
-          - Action:
-              - rds:*
-            Resource:
-              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${PrefixLowercase}*
-              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:cluster-pg:default.aurora-postgresql13
-              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:Portfolio* # for manual deployment cases
-            Effect: Allow
-
-          - Action:
-              - ec2:*
-            Resource:
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:${PrefixLowercase}*
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${PrefixLowercase}*
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:${Prefix}*
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${Prefix}*
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:*
-              - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:* # solved EC2 createSecuGroup
-
-            Effect: Allow
-
-          - Action: # allow describing all Ec2 resources lik VPC and security groups.
-              - ec2:Describe*
-            Resource:
-              - "*"
-            Effect: Allow
-
-          - Action:
-              - secretsmanager:*
-            Resource:
-              - !Sub arn:aws:secretsmanager:eu-west-1:${AWS::AccountId}:*
-            Effect: Allow
-
-          - Action:
-              - cloudwatch:*
-            Resource:
-              - !Sub arn:aws:cloudwatch:eu-west-1:${AWS::AccountId}:*:*
-              - "*"
-            Effect: Allow
-
-          - Action:
-              - iam:getRolePolicy
-            Resource:
-              - !Sub arn:aws:iam::${AWS::AccountId}:*
-            Effect: Allow
-
-          - Action:
-              - secretsmanager:GetRandomPassword
-            Resource:
-              - "*"
-            Effect: Allow
-
-          - Action:
-              - events:*
-            Resource:
-              - !Sub arn:aws:events:eu-west-1:${AWS::AccountId}:*:*
-              - "*"
             Effect: Allow
