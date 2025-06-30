@@ -27,7 +27,7 @@
         "label": "Deploy Bootstrap DEV",
         "type": "shell",
         "detail": "deploy current container to RES stage.",
-        "command": "export AWS_PROFILE=471685057907_PA_DEVELOPER; sam deploy --config-env bootstrap-dev",
+        "command": "sam deploy --config-env bootstrap-dev",
         "icon": {
           "id": "light-bulb",
           "color": "terminal.ansiWhite"
@@ -37,18 +37,17 @@
         "label": "Deploy Bootstrap PROD",
         "type": "shell",
         "detail": "deploy current container to RES stage.",
-        "command": "export AWS_PROFILE=936022423514_PA_FULLADMIN; sam deploy --config-env bootstrap-prod",
+        "command": "sam deploy --config-env bootstrap-prod",
         "icon": {
           "id": "light-bulb",
           "color": "terminal.ansiWhite"
         }
       },
-      //  # rm build/ cast_package.egg-info/ -r
       {
         "label": "Deploy Pipeline RES",
         "type": "shell",
         "detail": "deploy current container to RES stage.",
-        "command": "export AWS_PROFILE=214364534595_PA_DEVELOPER; sam deploy --config-env pipe",
+        "command": "sam deploy --config-env pipe",
         "icon": {
           "id": "light-bulb",
           "color": "terminal.ansiWhite"

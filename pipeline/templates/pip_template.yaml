@@ -40,12 +40,12 @@ Parameters:
   TargetRoleDev:
     Description: Role name to be assumed` of the target account for DEV environment
     Type: String
-    Default: PIPELINE-DeployerRole-dev  
+    Default: Target-DeployerRole-dev  
   
   TargetRoleProd:
     Description: Role name of the target account for PROD environment
     Type: String
-    Default: PIPELINE-DeployerRole-prod 
+    Default: Target-DeployerRole-prod 
 
 Resources:
 # We make sure to create a new role each time we deploy the pipeline
