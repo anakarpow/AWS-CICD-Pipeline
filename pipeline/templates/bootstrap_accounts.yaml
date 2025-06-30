@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: deploys resources for cross account pipeline in target accounts
+Description: deploys resources for cross-account pipeline in target accounts
 Globals:
   Function:
     Timeout: 300
@@ -13,16 +13,18 @@ Parameters:
     ConstraintDescription: must specify prod, dev, or int.
 
   Prefix:
-    Description: prject prefix
+    Description: project prefix
     Type: String
-    Default: CAST-
+    Default: PORTFOLIO-
 
+# some services like S3 dont allow uppercase letters in names
   PrefixLowercase:
-    Description: prject prefix
+    Description: project prefix
     Type: String
-    Default: cast-
+    Default: ${Prefix}
 
 Resources:
+# our bucket for storing artifacts
   ArtifactBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -30,6 +32,8 @@ Resources:
       BucketName: !Sub ${PrefixLowercase}artifact-bucket-${Env}
 
   DeployerRole:
+  # this role is used by CodeBuild to deploy resources in target accounts
+  # it needs to be created in each target account
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub ${Prefix}DeployerRole-${Env}
@@ -44,6 +48,7 @@ Resources:
               - sts:AssumeRole
 
   AccessArtifactBucket:
+  #
     Type: AWS::IAM::Policy
     Properties:
       Roles:
@@ -63,13 +68,13 @@ Resources:
             Resource:
               - !Sub arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}
               - !Sub arn:aws:s3:::${PrefixLowercase}artifact-bucket-${Env}/*
-              - arn:aws:s3:::cost-reporting-vw # MAIN DEV bukcet
-              - arn:aws:s3:::cost-reporting-vw/*
-              - arn:aws:s3:::cast-deployment # MAIN PROD BUCKET
-              - arn:aws:s3:::cast-deployment/*
+              - arn:aws:s3::dev-target-account # MAIN DEV bukcet
+              - arn:aws:s3:::dev-target-account/*
+              - arn:aws:s3::prod-target-account # MAIN PROD bukcet
+              - arn:aws:s3:::prod-target-account/*
 
             Effect: Allow
-
+  # Here we allow DeployerRole to use a specific KMS key for encryption/decryption
           - Action:
               - kms:Decrypt
               - kms:DescribeKey
@@ -78,7 +83,6 @@ Resources:
               - kms:GenerateDataKey*
             Resource:
               - !Sub arn:aws:kms:eu-west-1:${AWS::AccountId}:key/AWS_MANAGED_KEY
-              # - arn:aws:kms:eu-west-1:936022423514:key/AWS_MANAGED_KEY
             Effect: Allow
 
   # probably need to be udated according to depoyed resources
@@ -105,7 +109,6 @@ Resources:
             Resource:
               - !Sub arn:aws:iam::${AWS::AccountId}:role/${Prefix}*
               - !Sub arn:aws:iam::${AWS::AccountId}:policy/${Prefix}*
-              - arn:aws:iam::471685057907:role/vw-lambda-reporting-CostReportingFunctionRole-AXA0WJOBOLIW # hardcoded as this role is referenced by external cross-account policies
             Effect: Allow
 
           - Action:
@@ -114,6 +117,7 @@ Resources:
               - !Sub arn:aws:lambda:eu-west-1:${AWS::AccountId}:function:${Prefix}*
               - !Sub arn:aws:lambda:eu-west-1:${AWS::AccountId}:layer:*
               # lambda layers
+              #
               - arn:aws:lambda:eu-west-1:770693421928:layer:Klayers-p38-aws-psycopg2:1
               - arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24
               - !Sub arn:aws:lambda:eu-west-1:${AWS::AccountId}:function:* # for manual deployment cases
@@ -124,7 +128,7 @@ Resources:
             Resource:
               - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:${PrefixLowercase}*
               - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:cluster-pg:default.aurora-postgresql13
-              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:CAST* # for manual deployment cases
+              - !Sub arn:aws:rds:eu-west-1:${AWS::AccountId}:*:Portfolio* # for manual deployment cases
             Effect: Allow
 
           - Action:
@@ -134,7 +138,6 @@ Resources:
               - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${PrefixLowercase}*
               - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:${Prefix}*
               - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:subgrp:${Prefix}*
-              - arn:aws:ec2:eu-west-1:471685057907:vpc/vpc-0517670858bad1b7b # DEV VPC
               - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:security-group:*
               - !Sub arn:aws:ec2:eu-west-1:${AWS::AccountId}:* # solved EC2 createSecuGroup
 

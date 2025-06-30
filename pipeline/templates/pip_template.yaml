@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: "cross account Pipeline for CAST"
+Description: "cross-account Pipeline for continuous deployment of an application"
 Globals:
   Function:
     Timeout: 300
@@ -9,16 +9,23 @@ Parameters:
   Prefix:
     Description: project prefix
     Type: String
-    Default: CAST-
+    Default: pipeline-
+
+  AccountId:
+    Description: AccountId of the target account where the pipeline will be deployed
+    Type: String
+    Default: 1111111111111
 
 Resources:
+# We make sure to create a new role each time we deploy the pipeline
+  # this role is used by CodePipeline to deploy resources in target accounts ??????????
   PipelineRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: NewPipelineTestRoleAuto
+      RoleName: NewPipelineRoleAuto
       AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"codepipeline.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
 
-  PipelineTempPolicy:
+  PipelineTempPolicy: # why TEMP?
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: PipelineTemp
@@ -29,10 +36,10 @@ Resources:
         Statement:
           - Action:
               - codestar-connections:UseConnection
-            Resource: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
+            Resource: arn:aws:codestar-connections:eu-west-1:${AccountId}:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
             Effect: Allow
 
-          - Action: # allos Git to load to S3 bucket
+          - Action: # allows Git to load to S3 bucket
               - s3:*
             Resource: arn:aws:s3:::codepipeline-eu-west-1-*
             Effect: Allow
@@ -48,7 +55,7 @@ Resources:
               - cloudformation:ExecuteChangeSet
               - cloudformation:SetStackPolicy
               - cloudformation:ValidateTemplate
-            Resource: !Sub arn:aws:cloudformation:eu-west-1:214364534595:stack/${Prefix}*
+            Resource: !Sub arn:aws:cloudformation:eu-west-1:${AccountId}:stack/${Prefix}*
             Effect: Allow
 
           - Action:
@@ -57,14 +64,14 @@ Resources:
               - codebuild:BatchGetBuildBatches
               - codebuild:StartBuildBatch
             Resource:
-              - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-dev
-              - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev
-              - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-prod
-              - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-prod
-              - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-dev-ses
+              - arn:aws:codebuild:eu-west-1:${AccountId}:build/pipeline-dev
+              - arn:aws:codebuild:eu-west-1:${AccountId}:project/pipeline-dev
 
-              - arn:aws:codebuild:eu-west-1:214364534595:project/dpp-dco-cast-* # shuld cover all use cases
-              - arn:aws:codebuild:eu-west-1:214364534595:build/dpp-dco-cast-*
+              - arn:aws:codebuild:eu-west-1:${AccountId}:build/pipeline-prod
+              - arn:aws:codebuild:eu-west-1:${AccountId}:project/pipeline-prod
+
+              - arn:aws:codebuild:eu-west-1:${AccountId}:project/pipeline-* # shuld cover all use cases
+
 
             Effect: Allow
 
@@ -74,6 +81,8 @@ Resources:
             Resource: "*"
 
   CodeBuildRole:
+  # We make sure to create a new role each time we deploy the pipeline
+    # this role is used by CodeBuild to deploy resources in target accounts
     Type: "AWS::IAM::Role"
     Properties:
       RoleName: codebuild-service-role-auto
@@ -88,10 +97,10 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-          # allows to write logs
+          # allows to write logs. very important for debugging
           - Effect: Allow
             Resource:
-              - arn:aws:logs:eu-west-1:214364534595:log-group:*
+              - arn:aws:logs:eu-west-1:${AccountId}:log-group:*
             Action:
               - logs:CreateLogGroup
               - logs:CreateLogStream
@@ -109,21 +118,21 @@ Resources:
 
           - Action: sts:AssumeRole
             Resource:
-              - arn:aws:iam::471685057907:role/CAST-DeployerRole-dev
-              - arn:aws:iam::936022423514:role/CAST-DeployerRole-prod
+              - arn:aws:iam::471685057907:role/PIPELINE-DeployerRole-dev
+              - arn:aws:iam::936022423514:role/PIPELINE-DeployerRole-prod
             Effect: Allow
 
   CodeBuildMainDEV:
     Type: "AWS::CodeBuild::Project"
     Properties:
-      Name: "dpp-dco-cast-dev"
+      Name: "pipeline-dev"
       Source:
         BuildSpec: "deployment/buildspec/buildspec_dev.yaml"
         InsecureSsl: false
         Type: "CODEPIPELINE"
       Artifacts:
         EncryptionDisabled: false
-        Name: "dpp-dco-cast-to-dev-auto"
+        Name: "pipeline-to-dev-auto"
         Packaging: "NONE"
         Type: "CODEPIPELINE"
       Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
@@ -154,14 +163,14 @@ Resources:
   CodeBuildMainPROD:
     Type: "AWS::CodeBuild::Project"
     Properties:
-      Name: "dpp-dco-cast-prod"
+      Name: "pipeline-prod"
       Source:
         BuildSpec: "deployment/buildspec/buildspec_prod.yaml"
         InsecureSsl: false
         Type: "CODEPIPELINE"
       Artifacts:
         EncryptionDisabled: false
-        Name: "dpp-dco-cast-to-prod-auto"
+        Name: "pipeline-to-prod-auto"
         Packaging: "NONE"
         Type: "CODEPIPELINE"
       Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
@@ -192,14 +201,14 @@ Resources:
   CodeBuildSesDEV:
     Type: "AWS::CodeBuild::Project"
     Properties:
-      Name: "dpp-dco-cast-dev-ses"
+      Name: "pipeline-dev-ses"
       Source:
         BuildSpec: "deployment/buildspec/buildspec_dev.yaml"
         InsecureSsl: false
         Type: "CODEPIPELINE"
       Artifacts:
         EncryptionDisabled: false
-        Name: "dpp-dco-cast-to-dev-auto-ses"
+        Name: "pipeline-to-dev-auto-ses"
         Packaging: "NONE"
         Type: "CODEPIPELINE"
       Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
@@ -230,14 +239,14 @@ Resources:
   CodeBuildSesPROD:
     Type: "AWS::CodeBuild::Project"
     Properties:
-      Name: "dpp-dco-cast-prod-ses"
+      Name: "pipeline-prod-ses"
       Source:
         BuildSpec: "deployment/buildspec/buildspec_prod.yaml"
         InsecureSsl: false
         Type: "CODEPIPELINE"
       Artifacts:
         EncryptionDisabled: false
-        Name: "dpp-dco-cast-to-prod-auto-ses"
+        Name: "pipeline-to-prod-auto-ses"
         Packaging: "NONE"
         Type: "CODEPIPELINE"
       Cache: # consider using LOCAL SOURCE CACHE like here https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html
@@ -268,7 +277,7 @@ Resources:
   CodePipelineDEV:
     Type: "AWS::CodePipeline::Pipeline"
     Properties:
-      Name: CAST-Pipeline-dev
+      Name: PIPELINE-Pipeline-dev
       RoleArn: !GetAtt PipelineRole.Arn
       ArtifactStore:
         Location: !Sub "codepipeline-${AWS::Region}-922520304512"
@@ -276,7 +285,7 @@ Resources:
       Stages:
         - Name: "SourceAllRepos"
           Actions:
-            - Name: "SourceCastMain"
+            - Name: "SourcePIPELINEMain"
               ActionTypeId:
                 Category: "Source"
                 Owner: "AWS"
@@ -284,9 +293,9 @@ Resources:
                 Version: "1"
               Configuration:
                 BranchName: "DEV"
-                ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
+                ConnectionArn: arn:aws:codestar-connections:eu-west-1:${AccountId}:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
                 DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/CAST-main"
+                FullRepositoryId: "dpp-clearingoffice/PIPELINE-main"
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
                 - Name: "SourceArtifactMain"
@@ -302,9 +311,9 @@ Resources:
                 Version: "1"
               Configuration:
                 BranchName: "DEV"
-                ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
+                ConnectionArn: arn:aws:codestar-connections:eu-west-1:${AccountId}:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
                 DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/CAST-email"
+                FullRepositoryId: "dpp-clearingoffice/PIPELINE-email"
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
                 - Name: "SourceArtifactSES"
@@ -343,7 +352,7 @@ Resources:
   CodePipelinePROD:
     Type: "AWS::CodePipeline::Pipeline"
     Properties:
-      Name: CAST-Pipeline-prod
+      Name: PIPELINE-Pipeline-prod
       RoleArn: !GetAtt PipelineRole.Arn
       ArtifactStore:
         Location: !Sub "codepipeline-${AWS::Region}-922520304512"
@@ -360,9 +369,9 @@ Resources:
                 Version: "1"
               Configuration:
                 BranchName: "PROD" # later test for different branches
-                ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
+                ConnectionArn: arn:aws:codestar-connections:eu-west-1:${AccountId}:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
                 DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/CAST-main"
+                FullRepositoryId: "dpp-clearingoffice/PIPELINE-main"
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
                 - Name: "SourceArtifact"
@@ -378,9 +387,9 @@ Resources:
                 Version: "1"
               Configuration:
                 BranchName: "PROD"
-                ConnectionArn: arn:aws:codestar-connections:eu-west-1:214364534595:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
+                ConnectionArn: arn:aws:codestar-connections:eu-west-1:${AccountId}:connection/8520c13f-d6df-4bfb-abd8-77605b5ac68d
                 DetectChanges: "true"
-                FullRepositoryId: "dpp-clearingoffice/CAST-email"
+                FullRepositoryId: "dpp-clearingoffice/PIPELINE-email"
                 OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
                 - Name: "SourceArtifactSES"
