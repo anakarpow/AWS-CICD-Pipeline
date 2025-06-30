@@ -4,6 +4,9 @@
 - The pipeline is activated at each commit in the selected branch
 - See `pipeline-structure.png` for a visual representation of the pipeline structure.
 
+  ![pipeline-structure](https://github.com/user-attachments/assets/e712eadc-00d0-430e-81f9-be26576f61ca)
+
+
 ## Features
 
 - **Cross-Account Deployment:** Uses IAM roles and trust relationships to enable secure deployments across multiple AWS accounts.
