@@ -1,6 +1,8 @@
 # AWS Cross-Account CI/CD Pipeline
 - This project provides an AWS SAM-based solution for deploying a cross-account CI/CD pipeline using AWS CodePipeline and CodeBuild. 
 - The pipeline is designed to deploy resources into both development (DEV) and production (PROD) AWS accounts, following best practices for security and automation.
+- The pipeline is activated at each commit in the selected branch
+- See `pipeline-structure.png` for a visual representation of the pipeline structure.
 
 ## Features
 

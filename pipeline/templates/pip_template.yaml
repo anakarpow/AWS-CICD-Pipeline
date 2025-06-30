@@ -10,8 +10,6 @@ Description: "cross-account Pipeline for continuous deployment of an application
 # - CodeBuild projects for building and deploying resources in target accounts
 # - CodePipeline pipelines for deploying resources in target accounts
 
-
-
 Globals:
   Function:
     Timeout: 300
